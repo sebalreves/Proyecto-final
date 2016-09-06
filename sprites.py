@@ -6,7 +6,7 @@ import math
 
 class Animado():
     def iniciar(self, directorio):
-        self.directorio = frame_dir + '/' + directorio
+        self.directorio = archivo(frame_dir, directorio)
         self.last_update = 0
         self.current_frame = 0
         self.cargar_frames()
@@ -17,7 +17,7 @@ class Animado():
         self.frames = list()
         for x in range(len(os.listdir(self.directorio))):
             aux +=1
-            img = pg.image.load(img_name.format(self.directorio,aux))
+            img = pg.image.load(archivo.format(self.directorio,str(aux)+'.jpeg'))
             img = pg.transform.scale(img,(ANCHO, ALTO))
             self.frames.append(img)
             
@@ -32,9 +32,13 @@ class Animado():
 
 class Jugador(pg.sprite.Sprite, Animado):
     def __init__(self,game):
-        pg.sprite.Sprite.__init__(self)
+        self.groups = game.all_sprites
+        pg.sprite.Sprite.__init__(self,self.groups)
         self.game = game
-        self.iniciar('caminar')
+        self.image = pg.Surface((30,30))
+        self.image.fill(NEGRO)
+        self.rect = self.image.get_rect()
+        #self.iniciar('caminar')
         self.rect.center = (ANCHO/2, ALTO/2)
         self.pos = Vec(ANCHO/2, ALTO/2)
         self.acc = Vec(0,0)
@@ -43,7 +47,7 @@ class Jugador(pg.sprite.Sprite, Animado):
         
         
     def update(self):
-        self.animar(1)
+        #self.animar(1)
         self.acc.x, self.acc.y = 0,0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
@@ -58,16 +62,26 @@ class Jugador(pg.sprite.Sprite, Animado):
         self.pos += self.vel + (self.acc**2)/2
 
         if self.pos.x > ANCHO + self.rect.width/2:
-            self.pos.x = 0 - self.rect.width/2
-        if self.pos.x< 0- self.rect.width/2:
             self.pos.x = ANCHO + self.rect.width/2
+        if self.pos.x< 0- self.rect.width/2:
+            self.pos.x = 0 - self.rect.width/2
         
         self.rect.center = self.pos
         
-
-
+        
+class Wall(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.walls
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((30,30))
+        self.image.fill((100,30,30))
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.topleft = x*CUADRADO, y*CUADRADO
  
- 
+
 
 class Vec(object):
     """2d vector class, supports vector and scalar operators,
