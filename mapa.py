@@ -15,6 +15,7 @@ class Mapa():
         self.alto = len(self.data) * CUADRADO
 
     def render(self,game):
+        #agregar layer desde aca para no hacerlo en los sprite
         cont_y = 0
         for fila in self.data:
             cont_y+=1

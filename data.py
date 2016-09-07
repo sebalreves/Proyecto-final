@@ -13,9 +13,9 @@ def load_music():
 def load_mapas():
     global maps
     maps = dict()
-    for map1 in os.listdir(map_dir):
-        name = map1.replace('.txt', '')
-        maps[name]= Mapa(map1)
+    for mapas in os.listdir(map_dir):
+        name = mapas.replace('.txt', '')
+        maps[name]= Mapa(mapas)
         
 def load_data(): 
     load_capas()

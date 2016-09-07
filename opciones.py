@@ -1,6 +1,4 @@
-import pygame as pg
 import os
-
 
 dir = os.getcwd()
 arch_dir = dir + '/' + 'archivos'
@@ -8,6 +6,7 @@ frame_dir = arch_dir + '/' + 'fotogramas'
 map_dir = arch_dir + '/' + 'mapas'
 music_dir = arch_dir + '/' + 'musica'
 capa_dir = arch_dir + '/' + 'capas'
+dialogo_dir = arch_dir +'/' + 'dialogos'
 archivo = '{}/{}'   #carpeta/archivo
 
 
@@ -27,4 +26,8 @@ NEGRO = (0,0,0)
 
 PLAYER_ACC = 0.5
 PLAYER_FRICTION = -0.06
+
+#LAYER
+PLAYER_LAYER = 1
+WALL_LAYER = 2
 

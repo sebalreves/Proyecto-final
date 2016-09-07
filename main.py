@@ -10,19 +10,21 @@ class Game():
     def __init__(self):
         pg.init()
         self.pantalla = pg.display.set_mode((ANCHO, ALTO))
+        self.x = pg.Surface((ANCHO,ALTO))
         pg.display.set_caption('hola')
         self.clock = pg.time.Clock()
+        self.grupos = Grupos(self)
         self.new()
         self.run()
         
     
         
     def new(self):
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = pg.sprite.LayeredDirty()
         self.walls = pg.sprite.Group()
         import data
         self.jugador = Jugador(self)
-        self.map = data.maps['map']
+        self.map = data.maps['map1']
         self.map.render(self)
         self.camara = Camara(self.map.ancho,self.map.alto)
         
@@ -48,9 +50,8 @@ class Game():
     
     def update(self):
         pg.display.set_caption(str(round(self.clock.get_fps())))
-        self.all_sprites.update()
+        self.grupos.update()
         self.camara.update(self.jugador)
-        pg.display.update()
     
     def draw(self):
         self.pantalla.fill(BLANCO)
@@ -58,16 +59,40 @@ class Game():
             pg.draw.line(self.pantalla,(20,20,20), (x1,0),(x1,ALTO))
         for y1 in range(0,ALTO,CUADRADO):
             pg.draw.line(self.pantalla,(20,20,20), (0,y1), (ANCHO, y1))
-
-
-        for sprite in self.all_sprites:
-            self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
             
-        #self.all_sprites.draw(self.pantalla)
-        pg.display.flip()
+        self.grupos.dibujar()
 
-    def load_map(self):
-        pass
+
+        #for sprite in self.all_sprites:
+        #    self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
+            
+        #rects = self.all_sprites.draw(self.pantalla)
+        pg.display.update()
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
 g = Game()

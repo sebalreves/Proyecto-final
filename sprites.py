@@ -4,6 +4,47 @@ import os
 import operator
 import math
 
+class Grupos():
+    def __init__(self, game):
+        self.game = game
+        
+        self.layer_1= pg.sprite.LayeredDirty()
+        self.layer_2= pg.sprite.LayeredDirty()
+        self.layer_3= pg.sprite.LayeredDirty()
+        self.layer_4= pg.sprite.LayeredDirty()
+        self.layer_5= pg.sprite.LayeredDirty()
+        self.layer_6= pg.sprite.LayeredDirty()
+        self.layer_7= pg.sprite.LayeredDirty()
+        
+        self.layers = [self.layer_1, 
+                       self.layer_2, 
+                       self.layer_3, 
+                       self.layer_4,
+                       self.layer_5,
+                       self.layer_6,
+                       self.layer_7]
+
+    def dibujar(self):
+        for layer in self.layers:
+            for sprite in layer:
+                self.game.pantalla.blit(sprite.image, sprite.rect)
+        
+    def agregar(self,sprite,layer):
+        self.layers[layer].add(sprite)
+            
+    
+    def vaciar(self, layer=0):
+        if layer == 0:
+            for layer in self.layers:
+                layer.empty()
+        else:
+            self.layers[layer].empty()
+            
+    def update(self):
+        for layer in self.layers:
+            layer.update()
+            
+            
 class Animado():
     def iniciar(self, directorio):
         self.directorio = archivo(frame_dir, directorio)
@@ -12,13 +53,12 @@ class Animado():
         self.cargar_frames()
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-    def cargar_frames(self):
-        aux = 0
+    def cargar_frames(self):      #hacer eso al cargar data
         self.frames = list()
-        for x in range(len(os.listdir(self.directorio))):
+        for aux in range(len(os.listdir(self.directorio))):   #probar aux en for
             aux +=1
             img = pg.image.load(archivo.format(self.directorio,str(aux)+'.jpeg'))
-            img = pg.transform.scale(img,(ANCHO, ALTO))
+            img = pg.transform.scale(img,(300, 300))
             self.frames.append(img)
             
     def animar(self, tipo):
@@ -27,13 +67,12 @@ class Animado():
             self.last_update = now
             self.current_frame = (self.current_frame + 1)% len(self.frames)
             self.image = self.frames[self.current_frame]
-        
 
 
-class Jugador(pg.sprite.Sprite, Animado):
+class Jugador(pg.sprite.DirtySprite, Animado):
     def __init__(self,game):
-        self.groups = game.all_sprites
-        pg.sprite.Sprite.__init__(self,self.groups)
+        pg.sprite.DirtySprite.__init__(self)
+        game.grupos.agregar(self,PLAYER_LAYER)
         self.game = game
         self.image = pg.Surface((30,30))
         self.image.fill(NEGRO)
@@ -43,7 +82,8 @@ class Jugador(pg.sprite.Sprite, Animado):
         self.pos = Vec(ANCHO/2, ALTO/2)
         self.acc = Vec(0,0)
         self.vel = Vec(0,0)
-        
+        self.mover = False
+        self.dirty = 1
         
         
     def update(self):
@@ -59,6 +99,9 @@ class Jugador(pg.sprite.Sprite, Animado):
         self.vel += self.acc
         if abs(self.vel.x) < 0.1 :
             self.vel.x = 0
+        else:
+            self.mover = True
+            
         self.pos += self.vel + (self.acc**2)/2
 
         if self.pos.x > ANCHO + self.rect.width/2:
@@ -67,12 +110,16 @@ class Jugador(pg.sprite.Sprite, Animado):
             self.pos.x = 0 - self.rect.width/2
         
         self.rect.center = self.pos
+        if self.mover:
+            self.dirty = 1
         
         
-class Wall(pg.sprite.Sprite):
+        
+class Wall(pg.sprite.DirtySprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.walls
-        pg.sprite.Sprite.__init__(self, self.groups)
+        self.layer = WALL_LAYER
+        self.groups = game.all_sprites
+        pg.sprite.DirtySprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((30,30))
         self.image.fill((100,30,30))
@@ -80,6 +127,7 @@ class Wall(pg.sprite.Sprite):
         self.x = x
         self.y = y
         self.rect.topleft = x*CUADRADO, y*CUADRADO
+        self.dirty = 1
  
 
 
