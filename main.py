@@ -17,18 +17,13 @@ class Game():
         self.new()
         self.run()
         
-    
-        
     def new(self):
-        self.all_sprites = pg.sprite.LayeredDirty()
-        self.walls = pg.sprite.Group()
         import data
         self.jugador = Jugador(self)
         self.map = data.maps['map1']
         self.map.render(self)
         self.camara = Camara(self.map.ancho,self.map.alto)
-        
-        
+        self.cam = True
         
     def run(self):
         while True:
@@ -47,6 +42,12 @@ class Game():
                 if event.key == pg.K_ESCAPE:
                     pg.quit()
                     sys.exit()
+                    
+                if event.key == pg.K_SPACE:
+                    if self.cam:
+                        self.cam = False
+                    else:
+                        self.cam = True
     
     def update(self):
         pg.display.set_caption(str(round(self.clock.get_fps())))
@@ -55,44 +56,14 @@ class Game():
     
     def draw(self):
         self.pantalla.fill(BLANCO)
+        
         for x1 in range(0,ANCHO,CUADRADO):
             pg.draw.line(self.pantalla,(20,20,20), (x1,0),(x1,ALTO))
         for y1 in range(0,ALTO,CUADRADO):
             pg.draw.line(self.pantalla,(20,20,20), (0,y1), (ANCHO, y1))
             
-        self.grupos.dibujar()
-
-
-        #for sprite in self.all_sprites:
-        #    self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
-            
-        #rects = self.all_sprites.draw(self.pantalla)
+        self.grupos.dibujar(camara = self.cam)
         pg.display.update()
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         
 g = Game()

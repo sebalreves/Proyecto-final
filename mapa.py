@@ -34,7 +34,10 @@ class Camara():
     
     def aplicar(self, objeto):
         #mueve al objeto
-        return objeto.rect.move(self.rect.topleft)
+        x,y = self.rect.topleft
+        x = x * objeto.layer/4
+        y = objeto.layer/4
+        return objeto.rect.move(x,y)
     
     def update (self, objeto):
         #sigue al objeto, dejandolo en el centro

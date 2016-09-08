@@ -8,15 +8,17 @@ class Grupos():
     def __init__(self, game):
         self.game = game
         
-        self.layer_1= pg.sprite.LayeredDirty()
-        self.layer_2= pg.sprite.LayeredDirty()
-        self.layer_3= pg.sprite.LayeredDirty()
-        self.layer_4= pg.sprite.LayeredDirty()
-        self.layer_5= pg.sprite.LayeredDirty()
-        self.layer_6= pg.sprite.LayeredDirty()
-        self.layer_7= pg.sprite.LayeredDirty()
+        self.layer_0= pg.sprite.Group()      #Grupo a utilizar que no se ocupa
+        self.layer_1= pg.sprite.Group()
+        self.layer_2= pg.sprite.Group()
+        self.layer_3= pg.sprite.Group()
+        self.layer_4= pg.sprite.Group()
+        self.layer_5= pg.sprite.Group()
+        self.layer_6= pg.sprite.Group()
+        self.layer_7= pg.sprite.Group()
         
-        self.layers = [self.layer_1, 
+        self.layers = [self.layer_0,
+                       self.layer_1, 
                        self.layer_2, 
                        self.layer_3, 
                        self.layer_4,
@@ -24,15 +26,17 @@ class Grupos():
                        self.layer_6,
                        self.layer_7]
 
-    def dibujar(self):
+    def dibujar(self,camara = False):
         for layer in self.layers:
             for sprite in layer:
-                self.game.pantalla.blit(sprite.image, sprite.rect)
+                if camara:
+                    self.game.pantalla.blit(sprite.image, self.game.camara.aplicar(sprite))
+                else:
+                    self.game.pantalla.blit(sprite.image, sprite.rect)
         
     def agregar(self,sprite,layer):
         self.layers[layer].add(sprite)
             
-    
     def vaciar(self, layer=0):
         if layer == 0:
             for layer in self.layers:
@@ -69,10 +73,11 @@ class Animado():
             self.image = self.frames[self.current_frame]
 
 
-class Jugador(pg.sprite.DirtySprite, Animado):
+class Jugador(pg.sprite.Sprite, Animado):
     def __init__(self,game):
-        pg.sprite.DirtySprite.__init__(self)
+        pg.sprite.Sprite.__init__(self)
         game.grupos.agregar(self,PLAYER_LAYER)
+        self.layer = PLAYER_LAYER
         self.game = game
         self.image = pg.Surface((30,30))
         self.image.fill(NEGRO)
@@ -115,11 +120,11 @@ class Jugador(pg.sprite.DirtySprite, Animado):
         
         
         
-class Wall(pg.sprite.DirtySprite):
+class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        self.groups = game.grupos.layers[WALL_LAYER]
+        pg.sprite.Sprite.__init__(self, self.groups)
         self.layer = WALL_LAYER
-        self.groups = game.all_sprites
-        pg.sprite.DirtySprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((30,30))
         self.image.fill((100,30,30))
