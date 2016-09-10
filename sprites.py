@@ -51,7 +51,7 @@ class Grupos():
             
 class Animado():
     def iniciar(self, directorio):
-        self.directorio = archivo(frame_dir, directorio)
+        self.directorio = archivo.format(frame_dir, directorio)
         self.last_update = 0
         self.current_frame = 0
         self.cargar_frames()
@@ -74,25 +74,23 @@ class Animado():
 
 
 class Jugador(pg.sprite.Sprite, Animado):
-    def __init__(self,game):
+    def __init__(self,game,layer):
         pg.sprite.Sprite.__init__(self)
-        game.grupos.agregar(self,PLAYER_LAYER)
-        self.layer = PLAYER_LAYER
+        game.grupos.agregar(self,layer)
+        self.layer = layer
         self.game = game
         self.image = pg.Surface((30,30))
         self.image.fill(NEGRO)
         self.rect = self.image.get_rect()
-        #self.iniciar('caminar')
+        self.iniciar('caminar')
         self.rect.center = (ANCHO/2, ALTO/2)
         self.pos = Vec(ANCHO/2, ALTO/2)
         self.acc = Vec(0,0)
         self.vel = Vec(0,0)
-        self.mover = False
-        self.dirty = 1
         
         
     def update(self):
-        #self.animar(1)
+        self.animar(1)
         self.acc.x, self.acc.y = 0,0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
@@ -104,8 +102,6 @@ class Jugador(pg.sprite.Sprite, Animado):
         self.vel += self.acc
         if abs(self.vel.x) < 0.1 :
             self.vel.x = 0
-        else:
-            self.mover = True
             
         self.pos += self.vel + (self.acc**2)/2
 
@@ -115,24 +111,26 @@ class Jugador(pg.sprite.Sprite, Animado):
             self.pos.x = 0 - self.rect.width/2
         
         self.rect.center = self.pos
-        if self.mover:
-            self.dirty = 1
         
         
         
 class Wall(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
-        self.groups = game.grupos.layers[WALL_LAYER]
+    def __init__(self, game, x, y, layer):
+        self.groups = game.grupos.layers[layer]
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.layer = WALL_LAYER
+        self.layer = layer
         self.game = game
         self.image = pg.Surface((30,30))
-        self.image.fill((100,30,30))
+        if self.layer == 1:
+            self.image.fill((100,30,30))
+        elif self.layer == 2:
+            self.image.fill((150,0,0))
+        else:
+            self.image.fill((200,0,0))
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
         self.rect.topleft = x*CUADRADO, y*CUADRADO
-        self.dirty = 1
  
 
 
