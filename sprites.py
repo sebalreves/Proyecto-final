@@ -113,6 +113,10 @@ class Jugador(pg.sprite.Sprite):
             self.acc.y = -PLAYER_ACC
         if keys[pg.K_DOWN]:
             self.acc.y = PLAYER_ACC
+
+        if self.acc.x != 0 and self.acc.y !=0:
+                self.acc.x /= 1.414
+                self.acc.y /= 1.414
         
         self.acc += self.vel * PLAYER_FRICTION
         self.vel += self.acc
@@ -122,9 +126,9 @@ class Jugador(pg.sprite.Sprite):
         self.pos += self.vel + (self.acc**2)/2
 
         if self.pos.x > ANCHO + self.rect.width/2:
-            self.pos.x = ANCHO + self.rect.width/2
-        if self.pos.x< 0- self.rect.width/2:
             self.pos.x = 0 - self.rect.width/2
+        if self.pos.x< 0- self.rect.width/2:
+            self.pos.x = ANCHO + self.rect.width/2 
         
         self.rect.center = self.pos
         
