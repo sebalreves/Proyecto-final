@@ -11,7 +11,7 @@ archivo = '{}/{}'   #carpeta/archivo
 
 
 ANCHO = 800   #16 x 12
-ALTO = 600
+ALTO = 450
 
 
 FPS = 60
@@ -30,4 +30,7 @@ PLAYER_FRICTION = -0.06
 #LAYER
 PLAYER_LAYER = 2
 WALL_LAYER = 7
+
+#camara
+MAX_SPEED = 5
 
