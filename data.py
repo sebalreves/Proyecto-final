@@ -7,15 +7,16 @@ class Data:
         self.mapas = dict()
         self.animaciones = dict()
         self.musica = dict()
+        
         self.load_mapas()
-        self.load_frames()
+        self.load_animaciones()
         self.load_music()
         
     def load_mapas(self):
         for carpeta in os.listdir(map_dir):
             self.mapas[carpeta] = Mapa(self.game, archivo.format(map_dir,carpeta))
 
-    def load_frames(self):
+    def load_animaciones(self):
         for carpeta in os.listdir(frame_dir):
             self.animaciones[carpeta] = Animacion(archivo.format(frame_dir,carpeta))
 

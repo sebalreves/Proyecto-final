@@ -3,6 +3,57 @@ from opciones import*
 from sprites import*
 import random
     
+class Grupos():
+    # grupos que definen las diferentes capas donde se ubican los sprites
+    
+    def __init__(self, game):
+        self.game = game
+        
+        self.layer_0= pg.sprite.Group()      #Grupo a uxuliar que no se ocupa
+        self.layer_1= pg.sprite.Group()
+        self.layer_2= pg.sprite.Group()
+        self.layer_3= pg.sprite.Group()
+        self.layer_4= pg.sprite.Group()
+        self.layer_5= pg.sprite.Group()
+        self.layer_6= pg.sprite.Group()
+        self.layer_7= pg.sprite.Group()
+        
+        self.layers = [self.layer_0,
+                       self.layer_1, 
+                       self.layer_2, 
+                       self.layer_3, 
+                       self.layer_4,
+                       self.layer_5,
+                       self.layer_6,
+                       self.layer_7]
+
+    def dibujar(self):
+        #se dibuja en la pantalla
+        for layer in self.layers:
+            for sprite in layer:
+                # mover rectangulo auxiliar para hacer colisiones
+                sprite.draw_rect.topleft = self.game.camara.aplicar(sprite)[0:2]
+                
+                #el objeto se dibujara solo si esta dentro de la pantalla
+                if sprite.draw_rect.colliderect(self.game.pantalla_rect):
+                    self.game.pantalla.blit(sprite.image, self.game.camara.aplicar(sprite))
+                
+    def agregar(self,sprite,layer):
+        self.layers[layer].add(sprite)
+
+    def vaciar(self, layer=0):
+        if layer == 0:
+            for layer in self.layers:
+                layer.empty()
+        else:
+            self.layers[layer].empty()
+            
+    def update(self):
+        # llama a actualizarse a todos los sprites
+        for layer in self.layers:
+            layer.update()
+            
+            
 class Mapa:
     def __init__(self, game, carpeta):
         self.game = game
@@ -63,6 +114,7 @@ class Layer:
             sprite.layer = self.layer
                       
 class Camara():
+    #sigue al jugador y dibuja el resto de los objetos en direccion contraria al movimiento del jugador
     def __init__(self,game,ancho,alto):
         self.rect = pg.Rect(0,0,ancho,alto)
         self.game = game

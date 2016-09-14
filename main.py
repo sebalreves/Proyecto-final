@@ -19,7 +19,7 @@ class Game():
         self.run()
         
     def new(self):
-        self.seguir_jugador = True
+        self.seguir_jugador = False
         self.jugador = Jugador(self,PLAYER_LAYER)
         self.map = self.data.mapas['mapa1']
         self.map.render()

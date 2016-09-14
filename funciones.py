@@ -8,8 +8,6 @@ class Funciones:
         self.oscurecer = False
         self.tiritar = False
         self.cuadriculado = False
-        self.invertir = False
-        self.pintar = False
         
         #transicion
         self.alpha = 0
@@ -38,14 +36,6 @@ class Funciones:
         #dibujar cuadriculado
         if self.cuadriculado:
             self.dibujar_cuadriculado()
-
-        #invertir
-        if self.invertir:
-            self.invertir_pantalla()
-
-        #pintar
-        if self.pintar:
-            self.pintar_pantalla()
             
         #animacion
         
@@ -75,16 +65,6 @@ class Funciones:
     def tiritar_pantalla(self,x,y):
         self.copia = self.game.pantalla.copy()
         self.game.pantalla.blit(self.copia,(x,y))
-
-    def invertir_pantalla(self):
-        self.copia = self.game.pantalla.copy()
-        self.copia = pg.transform.flip(self.copia,True,True)
-        self.game.pantalla.blit(self.copia,(0,0))
-
-    def pintar_pantalla(self):
-        self.superficie.fill((255,255,0))
-        self.superficie.set_alpha(200)
-        self.game.pantalla.blit(self.superficie,(0,0))
         
     def dibujar_cuadriculado(self):
         for x1 in range(0,ANCHO,CUADRADO):
