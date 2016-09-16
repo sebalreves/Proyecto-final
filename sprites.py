@@ -27,15 +27,14 @@ class Animacion():
             
 class Animado():
     # atributos de un objeto animado, no carga ningun dato
-    def __init__(self,game,inicial):
+    def __init__(self,game):
         self.game = game
         self.last_update = 0
         self.current_frame = 0
-        self.image = self.game.data.animaciones[inicial].frames[0]
-        self.rect = self.image.get_rect()
+
         
     def animar(self, name):
-        #dependiendo de la situacion, se animaran distintas cosas en un mismo objeto animado
+        #un objeto puede tener distintas animaciones
         now = pg.time.get_ticks()
         if now - self.last_update > ANI_FPS:
             self.last_update = now
@@ -45,7 +44,7 @@ class Animado():
 
 class Jugador(pg.sprite.Sprite,Animado):
     def __init__(self,game,layer):
-        Animado.__init__(self, game,'caminar')
+        Animado.__init__(self, game)
         pg.sprite.Sprite.__init__(self)
         game.grupos.agregar(self,layer)
         
@@ -53,18 +52,21 @@ class Jugador(pg.sprite.Sprite,Animado):
         self.game = game
         self.image = pg.Surface((30,30))
         self.image.fill(NEGRO)
-        self.rect = self.image.get_rect()
-        self.draw_rect = self.image.get_rect()
+        self.rect = self.image.get_rect()   # rect real de la imagen
+        self.draw_rect = self.image.get_rect()   # rect que se dibuja con un offset de la camara
+        #la idea es que el draw_rect depende de el rect real, pero no viceversa
         self.rect.center = (ANCHO/2, ALTO/2)
         self.pos = Vec(ANCHO/2, ALTO/2)
+        self.draw_pos = Vec(ANCHO/2, ALTO/2)
         self.acc = Vec(0,0)
         self.vel = Vec(0,0)
         
         
     def update(self):
-        self.animar('caminar')
+        #self.animar('caminar')
+        self.acc.x, self.acc.y = self.seguir()
+
         
-        self.acc.x, self.acc.y = 0,0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
             self.acc.x = -PLAYER_ACC
@@ -74,6 +76,8 @@ class Jugador(pg.sprite.Sprite,Animado):
             self.acc.y = -PLAYER_ACC
         if keys[pg.K_DOWN]:
             self.acc.y = PLAYER_ACC
+            
+
         
         self.acc += self.vel * PLAYER_FRICTION
         self.vel += self.acc
@@ -81,13 +85,34 @@ class Jugador(pg.sprite.Sprite,Animado):
             self.vel = 0
             
         self.pos += self.vel + (self.acc**2)/2
-
-        if self.pos.x > ANCHO + self.rect.width/2:
-            self.pos.x = ANCHO + self.rect.width/2
-        if self.pos.x< 0- self.rect.width/2:
-            self.pos.x = 0 - self.rect.width/2
-        
         self.rect.center = self.pos
+        
+        # update draw_rect,
+        self.draw_pos.x = self.draw_rect.center[0]
+        self.draw_pos.y = self.draw_rect.center[1]
+
+        
+
+            
+    def seguir(self):
+        #sigue al mouse cuando se oprime boton izquierdo
+        if self.game.mouse.botones[2]:
+            self.desired = (self.game.mouse.pos - self.draw_pos)
+            dist = self.desired.get_length()
+            self.desired.normalized()
+            if dist < PLAYER_RADIO:
+                self.desired *= dist/PLAYER_RADIO * PLAYER_MAX_SPEED
+            else:
+                self.desired *= PLAYER_MAX_SPEED
+                
+            steer = self.desired - self.acc
+            if steer.get_length() > 0.1:
+                steer = (self.desired - self.acc).normalized() * 0.1
+            steer.y = 0
+            return steer
+        else:
+            return 0,0
+            
         
         
         

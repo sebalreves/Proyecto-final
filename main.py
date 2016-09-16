@@ -15,15 +15,19 @@ class Game():
         self.grupos = Grupos(self)
         self.data = Data(self)
         self.funciones = Funciones(self)
+        self.mouse = Mouse(self)
         self.new()
-        self.run()
+        
         
     def new(self):
-        self.seguir_jugador = False
         self.jugador = Jugador(self,PLAYER_LAYER)
         self.map = self.data.mapas['mapa1']
         self.map.render()
         self.camara = Camara(self, self.map.ancho,self.map.alto)
+        
+        # despues de cargar todos los datos, se inicia el juego
+        self.run()
+        
         
     def run(self):
         while True:
@@ -42,24 +46,28 @@ class Game():
                     pg.quit()
                     sys.exit()
                     
-                if event.key == pg.K_SPACE:
-                    if self.seguir_jugador:
-                        self.seguir_jugador = False
-                    else:
-                        self.seguir_jugador = True
+                if event.key == pg.K_p:
+                    self.funciones.pausa = not self.funciones.pausa
                         
-    
+                # estas son funciones que no influyen en el funcionamiento del programa
+                if not self.funciones.pausa:
+                    if event.key == pg.K_a:
+                        self.camara.seguir_jugador = not self.camara.seguir_jugador
+                        
+                    if event.key == pg.K_SPACE:
+                        self.funciones.transicion_pantalla()
+                    
     def update(self):
+        if  not self.funciones.pausa and not self.funciones.animando:
+            self.mouse.update()
+            self.grupos.update()
+            self.camara.update(self.jugador)
         pg.display.set_caption(str(round(self.clock.get_fps())))
-        self.grupos.update()
-        self.camara.update(self.jugador)
-        
-    def draw(self):
-        self.pantalla.fill(BLANCO)
+            
+    def draw(self):  
         self.grupos.dibujar()
+        self.mouse.draw()
         self.funciones.aplicar_filtros()
         pg.display.update()
-        
-            
         
 g = Game()

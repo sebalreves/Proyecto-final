@@ -2,7 +2,38 @@ import pygame as pg
 from opciones import*
 from sprites import*
 import random
-    
+from vector import *
+        
+class Mouse():
+    def __init__(self,game):
+        self.game = game
+        pg.mouse.set_pos(ANCHO/2, ALTO/2)
+        pg.mouse.set_visible(False)
+        self.pos = Vec(ANCHO/2, ALTO/2)
+        self.botones = [False,False,False]
+        
+        self.blanco = pg.image.load(arch_dir + '/blanco.png')
+        self.negro = pg.image.load(arch_dir + '/negro.png')
+        
+        self.image = self.blanco
+
+        
+    def update(self):
+        self.pos.x, self.pos.y = pg.mouse.get_pos()
+        self.botones = pg.mouse.get_pressed()
+        if not self.botones[2]:
+            self.seleccionar = False
+            self.image = self.blanco
+        else:
+            self.seleccionar = True
+
+            self.image = self.negro
+
+        
+    def draw(self):
+        self.game.pantalla.blit(self.image, (self.pos))
+
+        
 class Grupos():
     # grupos que definen las diferentes capas donde se ubican los sprites
     
@@ -29,14 +60,16 @@ class Grupos():
 
     def dibujar(self):
         #se dibuja en la pantalla
-        for layer in self.layers:
-            for sprite in layer:
-                # mover rectangulo auxiliar para hacer colisiones
-                sprite.draw_rect.topleft = self.game.camara.aplicar(sprite)[0:2]
-                
-                #el objeto se dibujara solo si esta dentro de la pantalla
-                if sprite.draw_rect.colliderect(self.game.pantalla_rect):
-                    self.game.pantalla.blit(sprite.image, self.game.camara.aplicar(sprite))
+        if  not self.game.funciones.pausa and not self.game.funciones.animando:
+            self.game.pantalla.fill(BLANCO)
+            for layer in self.layers:
+                for sprite in layer:
+                    # mover rectangulo auxiliar para hacer colisiones
+                    sprite.draw_rect.topleft = self.game.camara.aplicar(sprite)[0:2]
+                    
+                    #el objeto se dibujara solo si esta dentro de la pantalla
+                    if sprite.draw_rect.colliderect(self.game.pantalla_rect):
+                        self.game.pantalla.blit(sprite.image, self.game.camara.aplicar(sprite))
                 
     def agregar(self,sprite,layer):
         self.layers[layer].add(sprite)
@@ -71,8 +104,8 @@ class Mapa:
             contador +=1
             
         #dimensiones de la capa donde esta el jugador, necesarias para la camara
-        self.ancho = self.layers[self.player_layer].ancho
-        self.alto = self.layers[self.player_layer].alto
+        self.ancho = self.layers[self.player_layer].ancho + 500
+        self.alto = self.layers[self.player_layer].alto  + 500
         
     def render(self):
         #cambia al jugador de layer, dependiendo del mapa que se cargue
@@ -122,6 +155,7 @@ class Camara():
         self.alto = alto
         self.update_camara = True
         self.layer = None
+        self.seguir_jugador = False
     
     def aplicar(self, objeto):
         #no mueve ningun objeto, lo que hace es dibujarlo con un offset
@@ -134,12 +168,19 @@ class Camara():
         return objeto.rect.move(x,y)
     
     def update (self, objeto):
+        
         self.layer = objeto.layer
-        if self.game.seguir_jugador:
+        if self.seguir_jugador:
             #se deja al jugador al centro y se mueve el escenario en la direccion contraria al mismo
             
             x = -objeto.rect.centerx + int(ANCHO/2)
             y = -objeto.rect.centery + int(ALTO/2)
+            
+            # deja avanzar al objeto pero la camara se detiene en los bordes del mapa
+            x = min(0, x)  #izquierda
+            y = min (0,y)  # arriba
+            x = max(-(self.ancho - ANCHO), x)  # derecha
+            y = max(-(self.alto - ALTO), y)  # abajo
             
             self.rect = pg.Rect(x,y,self.ancho,self.alto)
         else:
