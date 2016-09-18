@@ -1,9 +1,10 @@
 import sys
-from opciones import *
+from dialogos import *
 from sprites import*
 from mapa import*
 from data import *
 from funciones import*
+
 
 
 class Game():
@@ -16,14 +17,17 @@ class Game():
         self.data = Data(self)
         self.funciones = Funciones(self)
         self.mouse = Mouse(self)
+        self.dialogando = 0   # no se esta dialogando
+        self.dialogos = Dialogo(self,1)
         self.new()
         
         
     def new(self):
         self.jugador = Jugador(self,PLAYER_LAYER)
         self.map = self.data.mapas['mapa1']
-        self.map.render()
+        #self.map.render()
         self.camara = Camara(self, self.map.ancho,self.map.alto)
+        self.dialogando = 1   #no de nodo
         
         # despues de cargar todos los datos, se inicia el juego
         self.run()
@@ -37,10 +41,18 @@ class Game():
             self.draw()
                  
     def events(self):
+        self.mouse.boton_up = [False,False,False]
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                
                 pg.quit()
                 sys.exit()
+            
+            if event.type == pg.MOUSEBUTTONUP:
+                if event.button == 1:
+                    self.mouse.boton_up[0] = True
+
+
             if event.type == pg.KEYUP:
                 if event.key == pg.K_ESCAPE:
                     pg.quit()
@@ -48,7 +60,7 @@ class Game():
                     
                 if event.key == pg.K_p:
                     self.funciones.pausa = not self.funciones.pausa
-                        
+    
                 # estas son funciones que no influyen en el funcionamiento del programa
                 if not self.funciones.pausa:
                     if event.key == pg.K_a:
@@ -64,8 +76,12 @@ class Game():
             self.camara.update(self.jugador)
         pg.display.set_caption(str(round(self.clock.get_fps())))
             
+            
+            
     def draw(self):  
         self.grupos.dibujar()
+        self.dialogos.update()
+        #__ cambia el nodo a 0
         self.mouse.draw()
         self.funciones.aplicar_filtros()
         pg.display.update()

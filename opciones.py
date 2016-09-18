@@ -1,4 +1,5 @@
 import os
+import pygame as pg
 
 dir = os.getcwd()
 arch_dir = dir + '/' + 'archivos'
@@ -23,6 +24,7 @@ ALTO_T = ALTO/CUADRADO
 
 BLANCO =(255,255,255)
 NEGRO = (0,0,0)
+MORADO = (215,203,253)
 GRIS_1 =(30,30,30)
 GRIS_2 =(60,60,60)
 GRIS_3 =(90,90,90)
@@ -46,6 +48,25 @@ WALL_LAYER = 7
 
 #camara
 MAX_SPEED = 5
+
+#dialogos
+fuente_dir = arch_dir +'/fuente.ttf'
+pg.font.init()
+fuente_chica = pg.font.Font(fuente_dir, 22)
+fuente_media = pg.font.Font(fuente_dir, 25)
+fuente_grande = pg.font.Font(fuente_dir, 30)
+RAPIDEZ_DIALOGO = 90
+RAPIDEZ_MARCADORES = 500
+
+
+
+
+
+
+
+
+
+
 
 
 

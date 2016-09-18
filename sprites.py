@@ -1,4 +1,3 @@
-import pygame as pg
 from opciones import*
 from vector import *
 import os

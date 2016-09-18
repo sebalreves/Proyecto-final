@@ -1,0 +1,13 @@
+NN   corresponde a un nuevo dialogo, seguido de su respectivo id
+
+##name##name2     indica quien habla primero y con quin habla
+
+-    corresponde a un backslash n, dentro de una misma frase, para escribir abajo
+
+&    sirve para escribir otra frase para un mismo jugador
+
+||    deja hablar al otro personaje
+
+??id del nodo?? id_conversacion siguiente??    corresponde a  un nodo, y el id de la conversacion que le corresponderia
+
+__ fin de la conversacion   no es necesario parece

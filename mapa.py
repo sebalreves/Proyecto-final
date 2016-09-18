@@ -11,29 +11,31 @@ class Mouse():
         pg.mouse.set_visible(False)
         self.pos = Vec(ANCHO/2, ALTO/2)
         self.botones = [False,False,False]
+        self.boton_up = False
         
         self.blanco = pg.image.load(arch_dir + '/blanco.png')
         self.negro = pg.image.load(arch_dir + '/negro.png')
-        
+        self.morado = pg. image.load(arch_dir +'/morado.png')
         self.image = self.blanco
 
         
     def update(self):
+        #actualiza variables
         self.pos.x, self.pos.y = pg.mouse.get_pos()
         self.botones = pg.mouse.get_pressed()
-        if not self.botones[2]:
-            self.seleccionar = False
-            self.image = self.blanco
-        else:
-            self.seleccionar = True
-
+        
+        #actualiza el color del mouse
+        if self.botones[2]:
             self.image = self.negro
+        elif self.botones[0]:
+            self.image = self.morado
+        else:
+            self.image = self.blanco
 
         
     def draw(self):
         self.game.pantalla.blit(self.image, (self.pos))
-
-        
+     
 class Grupos():
     # grupos que definen las diferentes capas donde se ubican los sprites
     
@@ -85,8 +87,7 @@ class Grupos():
         # llama a actualizarse a todos los sprites
         for layer in self.layers:
             layer.update()
-            
-            
+                      
 class Mapa:
     def __init__(self, game, carpeta):
         self.game = game
@@ -154,7 +155,7 @@ class Camara():
         self.ancho = ancho
         self.alto = alto
         self.update_camara = True
-        self.layer = None
+        self.layer = 3
         self.seguir_jugador = False
     
     def aplicar(self, objeto):
