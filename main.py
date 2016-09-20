@@ -17,8 +17,8 @@ class Game():
         self.data = Data(self)
         self.funciones = Funciones(self)
         self.mouse = Mouse(self)
-        self.dialogando = 0   # no se esta dialogando
-        self.dialogos = Dialogo(self,1)
+        self.dialogos = Dialogo(self)
+        self.dialogo = 1
         self.new()
         
         
@@ -27,7 +27,6 @@ class Game():
         self.map = self.data.mapas['mapa1']
         #self.map.render()
         self.camara = Camara(self, self.map.ancho,self.map.alto)
-        self.dialogando = 1   #no de nodo
         
         # despues de cargar todos los datos, se inicia el juego
         self.run()

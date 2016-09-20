@@ -8,6 +8,6 @@ NN   corresponde a un nuevo dialogo, seguido de su respectivo id
 
 ||    deja hablar al otro personaje
 
-??id del nodo?? id_conversacion siguiente??    corresponde a  un nodo, y el id de la conversacion que le corresponderia
+??id_conversacion siguiente??mensaje    corresponde a  un nodo, y el id de la conversacion que le corresponderia
 
-__ fin de la conversacion   no es necesario parece
+__ fin de la conversacion   (no es necesario parece)

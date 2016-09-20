@@ -10,8 +10,8 @@ class Mouse():
         pg.mouse.set_pos(ANCHO/2, ALTO/2)
         pg.mouse.set_visible(False)
         self.pos = Vec(ANCHO/2, ALTO/2)
-        self.botones = [False,False,False]
-        self.boton_up = False
+        self.botones = [False,False,False]                #oprimidos
+        self.boton_up = [False,False,False]               #soltados
         
         self.blanco = pg.image.load(arch_dir + '/blanco.png')
         self.negro = pg.image.load(arch_dir + '/negro.png')
@@ -27,7 +27,7 @@ class Mouse():
         #actualiza el color del mouse
         if self.botones[2]:
             self.image = self.negro
-        elif self.botones[0]:
+        elif self.botones[0] and self.game.dialogo:
             self.image = self.morado
         else:
             self.image = self.blanco

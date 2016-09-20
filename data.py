@@ -38,13 +38,14 @@ class Data:
                         self.dialogos[nodo] = dict()
                         self.dialogos[nodo]['frases'] = list()
                         self.dialogos[nodo]['opciones'] = list()
+                        self.dialogos[nodo]['iniciativa'] = list()
             
                     if linea[0] == '|': # frase
                         linea = linea.strip().split('||')[1]
                         self.dialogos[nodo]['frases'].append(linea.strip().split('&'))
                         
                     if linea[0] == '?':#opciones
-                        self.dialogos[nodo]['opciones'].append(linea.strip().split('??')[1:]) #id nodo, id otra conversacion, texto
+                        self.dialogos[nodo]['opciones'].append(linea.strip().split('??')[1:]) # id otra conversacion, texto
                     
                     if linea[0] == '__': #final
                         pass
