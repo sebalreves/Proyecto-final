@@ -1,37 +1,26 @@
 import sys
 from dialogos import *
 from sprites import*
-from mapa import*
-from data import *
 from funciones import*
+from mapa import*
+from data import*
+from juego import *
 
 
-
-class Game():
+class Programa(Juego):
     def __init__(self):
         pg.init()
-        self.pantalla = pg.display.set_mode((ANCHO, ALTO))
-        self.pantalla_rect = pg.Rect(0,0,ANCHO,ALTO)
-        self.clock = pg.time.Clock()
+        Juego.__init__(self)
         self.grupos = Grupos(self)
         self.data = Data(self)
         self.funciones = Funciones(self)
         self.mouse = Mouse(self)
         self.dialogos = Dialogo(self)
-        self.dialogo = 1
-        self.new()
         
-        
-    def new(self):
-        self.jugador = Jugador(self,PLAYER_LAYER)
-        self.map = self.data.mapas['mapa1']
-        #self.map.render()
-        self.camara = Camara(self, self.map.ancho,self.map.alto)
-        
-        # despues de cargar todos los datos, se inicia el juego
+        self.nuevo_mundo()
+        self.x = pg.image.load('2.png')
         self.run()
-        
-        
+
     def run(self):
         while True:
             self.dt = self.clock.tick(FPS) /1000.0
@@ -43,13 +32,14 @@ class Game():
         self.mouse.boton_up = [False,False,False]
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                
                 pg.quit()
                 sys.exit()
             
             if event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.mouse.boton_up[0] = True
+                if event.button == 3:
+                    self.mouse.boton_up[2] = True
 
 
             if event.type == pg.KEYUP:
@@ -59,30 +49,29 @@ class Game():
                     
                 if event.key == pg.K_p:
                     self.funciones.pausa = not self.funciones.pausa
-    
-                # estas son funciones que no influyen en el funcionamiento del programa
+                    
                 if not self.funciones.pausa:
                     if event.key == pg.K_a:
                         self.camara.seguir_jugador = not self.camara.seguir_jugador
-                        
+                    
                     if event.key == pg.K_SPACE:
-                        self.funciones.transicion_pantalla()
+                        self.data.save_game()
                     
     def update(self):
         if  not self.funciones.pausa and not self.funciones.animando:
             self.mouse.update()
             self.grupos.update()
             self.camara.update(self.jugador)
+            self.map.update()
         pg.display.set_caption(str(round(self.clock.get_fps())))
-            
             
             
     def draw(self):  
         self.grupos.dibujar()
         self.dialogos.update()
-        #__ cambia el nodo a 0
+        self.funciones.filtros()
         self.mouse.draw()
-        self.funciones.aplicar_filtros()
+        self.funciones.filtros_sobre_mouse()
         pg.display.update()
         
-g = Game()
+g = Programa()

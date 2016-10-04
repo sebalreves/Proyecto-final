@@ -13,9 +13,9 @@ class Mouse():
         self.botones = [False,False,False]                #oprimidos
         self.boton_up = [False,False,False]               #soltados
         
-        self.blanco = pg.image.load(arch_dir + '/blanco.png')
-        self.negro = pg.image.load(arch_dir + '/negro.png')
-        self.morado = pg. image.load(arch_dir +'/morado.png')
+        self.blanco = self.game.data.sprites['blanco']
+        self.negro = self.game.data.sprites['negro']
+        self.morado = self.game.data.sprites['morado']
         self.image = self.blanco
 
         
@@ -63,7 +63,7 @@ class Grupos():
     def dibujar(self):
         #se dibuja en la pantalla
         if  not self.game.funciones.pausa and not self.game.funciones.animando:
-            self.game.pantalla.fill(BLANCO)
+            self.game.pantalla.fill((255,255,254))
             for layer in self.layers:
                 for sprite in layer:
                     # mover rectangulo auxiliar para hacer colisiones
@@ -92,11 +92,25 @@ class Mapa:
     def __init__(self, game, carpeta):
         self.game = game
         self.layers = dict()
+        self.info = dict()
         
-        #coloca al jugador dependiendo del mapa, aun pendiente
-        self.player_layer = 2
-        if carpeta == "direccion/mapa1":
-            self.player_layer = 2
+        #elementos para salir del mapa
+        self.alpha = 40
+        self.cambiar_mapa = False
+        self.oscurito = False
+
+        
+        #carga las caracteristicas del mapa
+        txt = open(carpeta + '/info.txt')
+        lineas = txt.readlines()
+        txt.close()
+        for linea in lineas:
+            llave, valor = linea.strip().split('::')
+            self.info[llave.strip()] = valor.strip()
+        
+        self.player_layer = int(self.info['jugador'])
+        self.izquierda = self.info['izquierda']
+        self.derecha = self.info['derecha']
             
         #Crea las instancias de las capas
         contador = 1
@@ -107,14 +121,47 @@ class Mapa:
         #dimensiones de la capa donde esta el jugador, necesarias para la camara
         self.ancho = self.layers[self.player_layer].ancho + 500
         self.alto = self.layers[self.player_layer].alto  + 500
+
         
     def render(self):
         #cambia al jugador de layer, dependiendo del mapa que se cargue
         # dibuja los sprites en la pantalla, limpiando los grupos y agregando los nuevos sprites
         self.game.grupos.vaciar()
-        self.game.jugador = Jugador(self.game, self.player_layer)
         for layer in self.layers.values():
             layer.render()
+        self.game.jugador = Jugador(self.game, self.player_layer)
+            
+    def update(self):
+        self.oscurecer = False
+        # saliendo del mapa
+        #print self.game.jugador.rect.centerx , self.ancho - 150
+        if self.game.jugador.rect.centerx > self.ancho - 150 :
+            if self.game.mouse.pos.x > self.ancho-200 :
+                self.oscurecer = True
+                if self.game.mouse.boton_up[2]:
+                    self.cambiar_mapa = True
+                    
+        if self.game.jugador.rect.centerx < 150:
+            if self.game.mouse.pos.x < 100:
+                self.oscurecer = True
+                if self.game.mouse.boton_up[2]:
+                    self.cambiar_mapa = True
+                
+        
+        if self.cambiar_mapa:
+            self.game.funciones.transicion_pantalla(3)
+            self.cambiar_mapa = False
+            
+        if self.game.funciones.alpha == 255: #cambia el mapa cuando todo este negro
+            self.salir_del_mapa()
+            self.game.funciones.transicion_pantalla(6)
+            
+
+            
+    def salir_del_mapa(self):
+        #elimina sprites actuales y carga loos del nuevo mapa
+        self.game.mapa = self.game.data.mapas['mapa2']
+        self.game.mapa.render()
             
 class Layer:
     def __init__(self,game,filename, layer):
@@ -146,6 +193,7 @@ class Layer:
         for sprite in self.sprites:
             self.game.grupos.layers[self.layer].add(sprite)
             sprite.layer = self.layer
+        
                       
 class Camara():
     #sigue al jugador y dibuja el resto de los objetos en direccion contraria al movimiento del jugador

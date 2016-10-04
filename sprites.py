@@ -9,17 +9,12 @@ class Animacion():
         self.frames = list()
         
         # se cargan los fotogramas de una animacion
-        i = 0
-        frames_name = os.listdir(self.directorio)   #ordena los archivos contenidos en la carpeta
-        for aux in frames_name:
-            frames_name[i] = aux.replace('.jpeg', '')
-            i+=1
-        frames_name = map(int, frames_name)
-        frames_name.sort() 
-        
-        for frame in frames_name:   #probar aux en for
-            img = pg.image.load(archivo.format(self.directorio,frame)+'.jpeg')
-            img = pg.transform.scale(img,(300, 300))  #hacer el escalado fuera del programa para ahorrar
+        names = range(len(os.listdir(self.directorio))+1)[1:]
+        tipo_archivo = os.listdir(self.directorio)[0].split('.')[1]
+
+        for frame in names:
+            img = pg.image.load(archivo.format(self.directorio,frame) + '.' + tipo_archivo)
+            #img = pg.transform.scale(img,(300, 300))  #hacer el escalado fuera del programa para ahorrar
             self.frames.append(img)
         
         
@@ -40,6 +35,8 @@ class Animado():
             self.current_frame = (self.current_frame + 1)% len(self.game.data.animaciones[name].frames)
             self.image = self.game.data.animaciones[name].frames[self.current_frame]
             self.rect = self.image.get_rect()
+            
+            
 
 class Jugador(pg.sprite.Sprite,Animado):
     def __init__(self,game,layer):
@@ -49,7 +46,7 @@ class Jugador(pg.sprite.Sprite,Animado):
         
         self.layer = layer
         self.game = game
-        self.image = pg.Surface((30,30))
+        self.image = pg.Surface((309,309))
         self.image.fill(NEGRO)
         self.rect = self.image.get_rect()   # rect real de la imagen
         self.draw_rect = self.image.get_rect()   # rect que se dibuja con un offset de la camara
@@ -62,21 +59,9 @@ class Jugador(pg.sprite.Sprite,Animado):
         
         
     def update(self):
-        #self.animar('caminar')
+        #self.animar('girar')
         self.acc.x, self.acc.y = self.seguir()
-
         
-        keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT]:
-            self.acc.x = -PLAYER_ACC
-        if keys[pg.K_RIGHT]:
-            self.acc.x = PLAYER_ACC
-        if keys[pg.K_UP]:
-            self.acc.y = -PLAYER_ACC
-        if keys[pg.K_DOWN]:
-            self.acc.y = PLAYER_ACC
-            
-
         
         self.acc += self.vel * PLAYER_FRICTION
         self.vel += self.acc
@@ -90,9 +75,6 @@ class Jugador(pg.sprite.Sprite,Animado):
         self.draw_pos.x = self.draw_rect.center[0]
         self.draw_pos.y = self.draw_rect.center[1]
 
-        
-
-            
     def seguir(self):
         #sigue al mouse cuando se oprime boton izquierdo
         if self.game.mouse.botones[2]:
@@ -111,6 +93,9 @@ class Jugador(pg.sprite.Sprite,Animado):
             return steer
         else:
             return 0,0
+        
+    def aparecer(self, lugar):
+        pass
             
         
         

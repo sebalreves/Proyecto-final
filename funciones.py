@@ -12,22 +12,48 @@ class Funciones:
         self.pausa = False 
         
         #transicion
+        self.velocidad = 0
         self.alpha = 0
+        self.alpha_2 = 0
         self.superficie = pg.Surface((ANCHO,ALTO))
+        self.superficie_2 = pg.Surface((ANCHO,ALTO))
         
-    def aplicar_filtros(self):
-        if not self.pausa: #se aplicaran los filtros solo si el juego no esta pausado
+        
+        
+    def filtros_sobre_mouse(self):   #estan por sobre el mouse
+        if not self.pausa:
             #transicion
-            if self.transicion :
-                self.transicion_pantalla()
-            if self.alpha != 0:
-                self.game.pantalla.blit(self.superficie,(0,0))
+            if self.transicion:
+                self.transicion_pantalla(self.velocidad)
                 
+            if self.game.map.oscurecer:
+                self.alpha_2+= 4
+                if self.alpha_2 >= 50:
+                    self.alpha_2 = 50
+                    
+            else:
+                self.alpha_2 -=4
+                if self.alpha_2 <=0:
+                    self.alpha_2 = 0
+
+            if self.alpha != 0:
+                self.superficie.set_alpha(self.alpha)
+                self.game.pantalla.blit(self.superficie,(0,0))
+
+            if self.alpha_2!= 0:
+                self.superficie_2.set_alpha(self.alpha_2)
+                self.game.pantalla.blit(self.superficie_2,(0,0))
+                
+
+            
+            
+    def filtros(self):
+        if not self.pausa: #se aplicaran los filtros solo si el juego no esta pausado
             #tiritar
             if self.tiritar:
-                if random.random() > 0.98:
-                    x = 0 + int(random.uniform(-3,3))
-                    y = 0 + int(random.uniform(-3,3))
+                if random.random() > 0.9:
+                    x = 0 + int(random.uniform(-2,2))
+                    y = 0 + int(random.uniform(-2,2))
                     self.tiritar_pantalla(x,y)
                 
             #dibujar cuadriculado
@@ -38,33 +64,38 @@ class Funciones:
             if self.animando:
                 self.animar_pantalla(self.animacion)
         
-    def cambiar_mapa(self,nuevo_mapa):
+    def cambiar_mapa(self,nuevo_mapa):   # colocar esto en clase mapa
         #elimina sprites actuales y carga loos del nuevo mapa
         self.game.mapa = self.game.data.mapas[nuevo_mapa]
-        self.game.mapa.render() 
+        self.game.mapa.render()
         
-    def transicion_pantalla(self):
+    def transicion_pantalla(self,vel):
         if not self.transicion :
+            self.velocidad = vel
             self.transicion = True
-            if self.alpha == 0:
+            if self.alpha < 255:
                 self.aumentar = True
             else:
                 self.aumentar = False
+                
         #crea un efecto mistico para pasar de un mapa a otro
-        
         if self.aumentar:
-            self.alpha += 7
+            self.alpha += self.velocidad
             if self.alpha >= 255:
                 self.alpha = 255
                 self.transicion = False
-            self.superficie.set_alpha(self.alpha)
             
         else:
-            self.alpha -=7
+            self.alpha -= self.velocidad
             if self.alpha <= 0:
                 self.alpha = 0
                 self.transicion = False
-            self.superficie.set_alpha(self.alpha)
+            
+    def oscurecer_pantalla(self,alpha):
+        #oscurece levemente la pantalla
+        print 'hola'
+        self.superficie_2.set_alpha(40)
+        self.game.pantalla.blit(self.superficie_2,(0,0))
             
         
     def tiritar_pantalla(self,x,y):

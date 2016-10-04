@@ -8,8 +8,12 @@ class Data:
         self.animaciones = dict()
         self.musica = dict()
         self.dialogos = dict()
+        self.sprites = dict()
+        self.save = dict()
         
+        self.load_save()
         self.load_dialogos()
+        self.load_sprites()
         self.load_mapas()
         self.load_animaciones()
         self.load_music()
@@ -21,7 +25,15 @@ class Data:
     def load_animaciones(self):
         for carpeta in os.listdir(frame_dir):
             self.animaciones[carpeta] = Animacion(archivo.format(frame_dir,carpeta))
+        
+        print len(self.animaciones['girar'].frames)
             
+    def load_sprites(self):
+        for imagen in os.listdir(sprites_dir):
+            aux = imagen.split('.')[0]
+            temp = pg.image.load(archivo.format(sprites_dir,imagen))
+            self.sprites[aux] = temp
+
     def load_dialogos(self):
         txt = open(dialogo_dir + '/dialogos.txt')
         lineas = txt.readlines()
@@ -47,11 +59,43 @@ class Data:
                     if linea[0] == '?':#opciones
                         self.dialogos[nodo]['opciones'].append(linea.strip().split('??')[1:]) # id otra conversacion, texto
                     
-                    if linea[0] == '__': #final
-                        pass
         
-
     def load_music(self):
         pass
+    
+    def load_save(self):
+        #carga la informacion contenida en un txt(save)
+        txt = open(arch_dir+ '/save.txt')
+        lineas = txt.readlines()
+        txt.close()
+        for linea in lineas:
+            llave, valor = linea.strip().split('::')
+            self.save[llave.strip()] = valor.strip()
+            
+            
+    
+    def save_game(self):
+        #cada vez que se cierra la ejecucion de python, se hace un guardado
+        txt = open(arch_dir+ '/save.txt', 'w')
+        for llave in self.save:
+            linea = '{}::{}\n'.format(llave, self.save[llave])
+            txt.write(linea)
+        txt.close
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
 

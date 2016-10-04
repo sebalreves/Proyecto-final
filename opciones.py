@@ -6,13 +6,13 @@ arch_dir = dir + '/' + 'archivos'
 frame_dir = arch_dir + '/' + 'fotogramas'
 map_dir = arch_dir + '/' + 'mapas'
 music_dir = arch_dir + '/' + 'musica'
-capa_dir = arch_dir + '/' + 'capas'
+sprites_dir = arch_dir + '/' + 'sprites'
 dialogo_dir = arch_dir +'/' + 'dialogos'
 archivo = '{}/{}'   #carpeta/archivo
 
 
-ANCHO = 800   #16 x 12
-ALTO = 450
+ANCHO = 1200   #16 x 12
+ALTO = 720
 
 
 FPS = 60

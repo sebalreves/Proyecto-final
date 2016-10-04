@@ -4,7 +4,7 @@ class Dialogo():
     #dialogo entre el jugador y otra persona
     def __init__(self,game):
         self.game = game
-        self.game.dialogo = 0
+        self.game.dialogo = 1
         #elementos para dibujar en pantalla
         self.x = 30
         self.y = 10
