@@ -11,25 +11,27 @@ class Programa(Juego):
     def __init__(self):
         pg.init()
         Juego.__init__(self)
-        self.grupos = Grupos(self)
         self.data = Data(self)
         self.funciones = Funciones(self)
         self.mouse = Mouse(self)
         self.dialogos = Dialogo(self)
         
         self.nuevo_mundo()
-        self.x = pg.image.load('2.png')
         self.run()
 
     def run(self):
         while True:
             self.dt = self.clock.tick(FPS) /1000.0
             self.events()
-            self.update()
-            self.draw()
+            if  not self.funciones.pausa and not self.funciones.animando:
+                self.update()
+                self.draw()
                  
     def events(self):
+        pg.display.set_caption(str(round(self.clock.get_fps())))
         self.mouse.boton_up = [False,False,False]
+        self.keys = pg.key.get_pressed()
+        
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -55,23 +57,45 @@ class Programa(Juego):
                         self.camara.seguir_jugador = not self.camara.seguir_jugador
                     
                     if event.key == pg.K_SPACE:
-                        self.data.save_game()
+                        self.funciones.mover_camara(400)
                     
     def update(self):
         if  not self.funciones.pausa and not self.funciones.animando:
             self.mouse.update()
-            self.grupos.update()
+            self.all_sprites.update()
             self.camara.update(self.jugador)
             self.map.update()
-        pg.display.set_caption(str(round(self.clock.get_fps())))
+        
             
             
     def draw(self):  
-        self.grupos.dibujar()
-        self.dialogos.update()
+        self.pantalla.fill((255,255,254))
+        for sprite in self.all_sprites:
+            # mover rectangulo auxiliar para hacer colisiones
+            sprite.draw_rect.topleft = self.camara.aplicar(sprite)[0:2]
+            
+            #el objeto se dibujara solo si esta dentro de la pantalla
+            if sprite.draw_rect.colliderect(self.pantalla_rect):
+                self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
+            
+            
+        if not self.map.oscurecer:
+            self.dialogos.update()
+        else:
+            self.map.mostrar_opciones()
         self.funciones.filtros()
         self.mouse.draw()
         self.funciones.filtros_sobre_mouse()
+        self.funciones.escribir('hola', (100,100))
         pg.display.update()
         
 g = Programa()
+
+
+
+
+
+
+
+
+

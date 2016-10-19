@@ -9,6 +9,7 @@ class Funciones:
         self.tiritar = False
         self.cuadriculado = False
         self.animando = False
+        self.camara_en_movimiento = False  #movimiento independiente del jugador
         self.pausa = False 
         
         #transicion
@@ -60,6 +61,8 @@ class Funciones:
             if self.cuadriculado:
                 self.dibujar_cuadriculado()
                 
+            if self.camara_en_movimiento:
+                self.mover_camara()
             #animacion
             if self.animando:
                 self.animar_pantalla(self.animacion)
@@ -93,7 +96,6 @@ class Funciones:
             
     def oscurecer_pantalla(self,alpha):
         #oscurece levemente la pantalla
-        print 'hola'
         self.superficie_2.set_alpha(40)
         self.game.pantalla.blit(self.superficie_2,(0,0))
             
@@ -126,10 +128,35 @@ class Funciones:
                 self.cont += 1
             else:
                 self.animando = False
+                
+    def mover_camara(self,destino = 0):
+        if not self.camara_en_movimiento:
+            self.camara_en_movimiento = True
+            self.destino = destino
+            
+        x_inicial,y = self.game.camara.rect.topleft
+        x_final= self.destino
+        
+        distancia = x_final - x_inicial
+        if distancia != 0:
+            impulso = float(distancia/60)
+            if impulso > 5:
+                impulso = 5
+            x_inicial += impulso
+            
+        if   self.destino -2   <  x_inicial  < self.destino + 2:
+            self.moviendose = False
+            x_inicial = self.destino
+            
+        self.game.camara.rect.topleft = x_inicial,y
+        
+    def escribir(self,texto, pos, duracion=0):
+        superficie = fuente_chica.render(texto, True, NEGRO)
+        rect = superficie.get_rect()
+        rect.topleft = pos
+        self.game.pantalla.blit(superficie, rect)
+        return rect
+    
+    def escribir_nombre_mapa(self):
+        pass
 
-        
-        
-        
-        
-        
-        

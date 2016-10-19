@@ -38,15 +38,15 @@ class Animado():
             
             
 
-class Jugador(pg.sprite.Sprite,Animado):
-    def __init__(self,game,layer):
+class Jugador(pg.sprite.Sprite, Animado):
+    def __init__(self,game):
         Animado.__init__(self, game)
-        pg.sprite.Sprite.__init__(self)
-        game.grupos.agregar(self,layer)
+        self._layer = 1
+        self.groups = game.all_sprites
+        pg.sprite.Sprite.__init__(self, self.groups)
         
-        self.layer = layer
         self.game = game
-        self.image = pg.Surface((309,309))
+        self.image = pg.Surface((30,30))
         self.image.fill(NEGRO)
         self.rect = self.image.get_rect()   # rect real de la imagen
         self.draw_rect = self.image.get_rect()   # rect que se dibuja con un offset de la camara
@@ -61,7 +61,6 @@ class Jugador(pg.sprite.Sprite,Animado):
     def update(self):
         #self.animar('girar')
         self.acc.x, self.acc.y = self.seguir()
-        
         
         self.acc += self.vel * PLAYER_FRICTION
         self.vel += self.acc
@@ -97,13 +96,22 @@ class Jugador(pg.sprite.Sprite,Animado):
     def aparecer(self, lugar):
         pass
             
+
+
+#------------------------------------------------------- class Parlanchin(Wall):
+    #------------------------- def __init__(self,game,x,y,layer,personaje,nodo):
+        #-------------------------------- Wall.__init__(self, game, x, y, layer)
+        #------------------------------------- self.image = imagen del personaje
+#------------------------------------------------------------------------------ 
+    #--------------------------------------------------------- def update(self):
         
         
         
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y,layer):
-        #self.groups = game.grupos.layers[layer]
+        self._layer = layer
         pg.sprite.Sprite.__init__(self)
+        
         self.game = game
         self.image = pg.Surface((30,30))
         self.layer = layer

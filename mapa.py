@@ -36,57 +36,6 @@ class Mouse():
     def draw(self):
         self.game.pantalla.blit(self.image, (self.pos))
      
-class Grupos():
-    # grupos que definen las diferentes capas donde se ubican los sprites
-    
-    def __init__(self, game):
-        self.game = game
-        
-        self.layer_0= pg.sprite.Group()      #Grupo a uxuliar que no se ocupa
-        self.layer_1= pg.sprite.Group()
-        self.layer_2= pg.sprite.Group()
-        self.layer_3= pg.sprite.Group()
-        self.layer_4= pg.sprite.Group()
-        self.layer_5= pg.sprite.Group()
-        self.layer_6= pg.sprite.Group()
-        self.layer_7= pg.sprite.Group()
-        
-        self.layers = [self.layer_0,
-                       self.layer_1, 
-                       self.layer_2, 
-                       self.layer_3, 
-                       self.layer_4,
-                       self.layer_5,
-                       self.layer_6,
-                       self.layer_7]
-
-    def dibujar(self):
-        #se dibuja en la pantalla
-        if  not self.game.funciones.pausa and not self.game.funciones.animando:
-            self.game.pantalla.fill((255,255,254))
-            for layer in self.layers:
-                for sprite in layer:
-                    # mover rectangulo auxiliar para hacer colisiones
-                    sprite.draw_rect.topleft = self.game.camara.aplicar(sprite)[0:2]
-                    
-                    #el objeto se dibujara solo si esta dentro de la pantalla
-                    if sprite.draw_rect.colliderect(self.game.pantalla_rect):
-                        self.game.pantalla.blit(sprite.image, self.game.camara.aplicar(sprite))
-                
-    def agregar(self,sprite,layer):
-        self.layers[layer].add(sprite)
-
-    def vaciar(self, layer=0):
-        if layer == 0:
-            for layer in self.layers:
-                layer.empty()
-        else:
-            self.layers[layer].empty()
-            
-    def update(self):
-        # llama a actualizarse a todos los sprites
-        for layer in self.layers:
-            layer.update()
                       
 class Mapa:
     def __init__(self, game, carpeta):
@@ -112,7 +61,7 @@ class Mapa:
         self.izquierda = self.info['izquierda']
         self.derecha = self.info['derecha']
             
-        #Crea las instancias de las capas
+        #Crea una capa de profundidad por cada txt que conforme el mapa
         contador = 1
         for txt in os.listdir(carpeta):
             self.layers[contador] = Layer(self.game, archivo.format(carpeta,txt), contador)
@@ -126,15 +75,19 @@ class Mapa:
     def render(self):
         #cambia al jugador de layer, dependiendo del mapa que se cargue
         # dibuja los sprites en la pantalla, limpiando los grupos y agregando los nuevos sprites
-        self.game.grupos.vaciar()
-        for layer in self.layers.values():
-            layer.render()
-        self.game.jugador = Jugador(self.game, self.player_layer)
+        self.game.all_sprites.empty()
+        for cont,layer in enumerate(self.layers.values()):
+            self.game.all_sprites.add(layer.sprites)
+            if cont == int(self.info['jugador']):
+                self.game.all_sprites.add(self.game.jugador)
+                
+            
+        #falta crear funcion para cada mapa, la manera en que spawnea el jugador
+        
             
     def update(self):
         self.oscurecer = False
         # saliendo del mapa
-        #print self.game.jugador.rect.centerx , self.ancho - 150
         if self.game.jugador.rect.centerx > self.ancho - 150 :
             if self.game.mouse.pos.x > self.ancho-200 :
                 self.oscurecer = True
@@ -157,9 +110,17 @@ class Mapa:
             self.game.funciones.transicion_pantalla(6)
             
 
+    def mostrar_opciones(self):
+        if self.game.mouse.pos.x > 600:
+            for cont, eleccion in enumerate(self.derecha):
+                print eleccion
+        else:
+            for cont, eleccion in enumerate(self.izquierda):
+                print eleccion
             
     def salir_del_mapa(self):
         #elimina sprites actuales y carga loos del nuevo mapa
+        self.game.dialogo = 0
         self.game.mapa = self.game.data.mapas['mapa2']
         self.game.mapa.render()
             
@@ -188,37 +149,36 @@ class Layer:
                 if lugar == '1':
                     self.sprites.append(Wall(self.game,cont_x,cont_y,layer))
                     
-    def render(self):
-        # agrega los sprites a los grupos
-        for sprite in self.sprites:
-            self.game.grupos.layers[self.layer].add(sprite)
-            sprite.layer = self.layer
-        
-                      
+
+    
 class Camara():
     #sigue al jugador y dibuja el resto de los objetos en direccion contraria al movimiento del jugador
     def __init__(self,game,ancho,alto):
         self.rect = pg.Rect(0,0,ancho,alto)
+        self.pos = Vec(0,0)
         self.game = game
         self.ancho = ancho
         self.alto = alto
         self.update_camara = True
         self.layer = 3
         self.seguir_jugador = False
+        self.moviendose = False #independiente del jugador
     
     def aplicar(self, objeto):
         #no mueve ningun objeto, lo que hace es dibujarlo con un offset
         x,y = self.rect.topleft
         
         # division necesaria para que el jugador quede estatico y el resto se mueva en "perspectiva"
-        x = x * objeto.layer/self.layer
-        y = y * objeto.layer/self.layer
+        x = x * objeto._layer/self.layer
+        y = y * objeto._layer/self.layer
         
         return objeto.rect.move(x,y)
+
     
     def update (self, objeto):
-        
-        self.layer = objeto.layer
+        if self.moviendose:
+            self.mover_camara()
+        self.layer = objeto._layer
         if self.seguir_jugador:
             #se deja al jugador al centro y se mueve el escenario en la direccion contraria al mismo
             
@@ -233,7 +193,16 @@ class Camara():
             
             self.rect = pg.Rect(x,y,self.ancho,self.alto)
         else:
-            #se deja estatico el escenario y se mueve el jugador
             pass
+            #------------------------------------------- x,y = self.rect.topleft
+            #--------------- se deja estatico el escenario y se mueve el jugador
+            #------------------------------------- if self.game.keys[pg.K_LEFT]:
+                #-------------------------------------------------------- x -= 5
+            #------------------------------------ if self.game.keys[pg.K_RIGHT]:
+                #-------------------------------------------------------- x += 5
+            #------------------------------------------- self.rect.topleft = x,y
+            #--------------------------------------------------- print self.rect
+
+
             
         

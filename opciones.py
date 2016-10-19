@@ -55,7 +55,7 @@ pg.font.init()
 fuente_chica = pg.font.Font(fuente_dir, 22)
 fuente_media = pg.font.Font(fuente_dir, 25)
 fuente_grande = pg.font.Font(fuente_dir, 30)
-RAPIDEZ_DIALOGO = 90
+RAPIDEZ_DIALOGO = 70
 RAPIDEZ_MARCADORES = 500
 
 

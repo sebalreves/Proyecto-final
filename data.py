@@ -25,8 +25,6 @@ class Data:
     def load_animaciones(self):
         for carpeta in os.listdir(frame_dir):
             self.animaciones[carpeta] = Animacion(archivo.format(frame_dir,carpeta))
-        
-        print len(self.animaciones['girar'].frames)
             
     def load_sprites(self):
         for imagen in os.listdir(sprites_dir):

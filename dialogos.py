@@ -99,7 +99,7 @@ class Dialogo():
         elif tamano == 'media':
             superficie = fuente_media.render(texto, True, NEGRO)
         rect = superficie.get_rect()
-
+        
         rect.topleft = pos
         self.game.pantalla.blit(superficie, rect)
         return rect
