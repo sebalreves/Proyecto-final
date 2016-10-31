@@ -46,8 +46,9 @@ class Mapa:
         #elementos para salir del mapa
         self.alpha = 40
         self.cambiar_mapa = False
-        self.oscurito = False
-
+        self.borde = False
+        self.oscurecer = False
+        self.name = carpeta.strip().split('/')[-1]
         
         #carga las caracteristicas del mapa
         txt = open(carpeta + '/info.txt')
@@ -56,11 +57,11 @@ class Mapa:
         for linea in lineas:
             llave, valor = linea.strip().split('::')
             self.info[llave.strip()] = valor.strip()
-        
-        self.player_layer = int(self.info['jugador'])
-        self.izquierda = self.info['izquierda']
-        self.derecha = self.info['derecha']
             
+        self.player_layer = int(self.info['jugador'])
+        self.izquierda = self.info['izquierda'].split(',')
+        self.derecha = self.info['derecha'].split(',')
+        
         #Crea una capa de profundidad por cada txt que conforme el mapa
         contador = 1
         for txt in os.listdir(carpeta):
@@ -68,10 +69,9 @@ class Mapa:
             contador +=1
             
         #dimensiones de la capa donde esta el jugador, necesarias para la camara
-        self.ancho = self.layers[self.player_layer].ancho + 500
-        self.alto = self.layers[self.player_layer].alto  + 500
-
-        
+        self.ancho = self.layers[self.player_layer].ancho + 2000
+        self.alto = self.layers[self.player_layer].alto  
+      
     def render(self):
         #cambia al jugador de layer, dependiendo del mapa que se cargue
         # dibuja los sprites en la pantalla, limpiando los grupos y agregando los nuevos sprites
@@ -82,25 +82,25 @@ class Mapa:
                 self.game.all_sprites.add(self.game.jugador)
                 
             
-        #falta crear funcion para cada mapa, la manera en que spawnea el jugador
+    #falta crear funcion para cada mapa, la manera en que spawnea el jugador
         
             
     def update(self):
+        self.borde = False
         self.oscurecer = False
         # saliendo del mapa
         if self.game.jugador.rect.centerx > self.ancho - 150 :
             if self.game.mouse.pos.x > self.ancho-200 :
-                self.oscurecer = True
-                if self.game.mouse.boton_up[2]:
-                    self.cambiar_mapa = True
+                if len(self.derecha[0]) > 0 :
+                    self.borde = True
+                    self.mostrar_opciones()
                     
         if self.game.jugador.rect.centerx < 150:
             if self.game.mouse.pos.x < 100:
-                self.oscurecer = True
-                if self.game.mouse.boton_up[2]:
-                    self.cambiar_mapa = True
+                if len(self.izquierda[0])>0:
+                    self.borde = True
+                    self.mostrar_opciones()
                 
-        
         if self.cambiar_mapa:
             self.game.funciones.transicion_pantalla(3)
             self.cambiar_mapa = False
@@ -109,20 +109,48 @@ class Mapa:
             self.salir_del_mapa()
             self.game.funciones.transicion_pantalla(6)
             
-
+            
     def mostrar_opciones(self):
+        self.sobre_boton = False
         if self.game.mouse.pos.x > 600:
             for cont, eleccion in enumerate(self.derecha):
-                print eleccion
+                rect = self.game.funciones.escribir_derecha(eleccion, (50*cont +15))
+                if rect.collidepoint(self.game.mouse.pos):
+                    self.oscurecer= True
+                    
+                    if not self.sobre_boton: 
+                        self.sobre_boton = True
+                        inicio, final = ((rect.bottomleft[0],rect.bottomleft[1]-6), 
+                                        (rect.bottomright[0],rect.bottomright[1]-6))
+                        if self.game.mouse.boton_up[2]:
+                            self.cambiar_mapa = True
+                            self.eleccion = eleccion
+                            
+                    pg.draw.line(self.game.pantalla,NEGRO,inicio,final)
+                    
         else:
             for cont, eleccion in enumerate(self.izquierda):
-                print eleccion
+                rect = self.game.funciones.escribir(eleccion, (20,50*cont +15))
+                if rect.collidepoint(self.game.mouse.pos):
+                    self.oscurecer = True
+                    
+                    if not self.sobre_boton: 
+                        self.sobre_boton = True
+                        inicio, final = ((rect.bottomleft[0],rect.bottomleft[1]-6), 
+                                        (rect.bottomright[0],rect.bottomright[1]-6))
+                        if self.game.mouse.boton_up[2]:
+                            self.cambiar_mapa = True
+                            self.eleccion = eleccion
+                            
+                    pg.draw.line(self.game.pantalla,NEGRO,inicio,final)
+                    
             
     def salir_del_mapa(self):
         #elimina sprites actuales y carga loos del nuevo mapa
+        self.game.jugador.aparecer(self.eleccion)
         self.game.dialogo = 0
-        self.game.mapa = self.game.data.mapas['mapa2']
-        self.game.mapa.render()
+        self.game.map = self.game.data.mapas[self.eleccion]
+        self.game.map.render()
             
 class Layer:
     def __init__(self,game,filename, layer):
@@ -161,7 +189,7 @@ class Camara():
         self.alto = alto
         self.update_camara = True
         self.layer = 3
-        self.seguir_jugador = False
+        self.seguir_jugador = True
         self.moviendose = False #independiente del jugador
     
     def aplicar(self, objeto):

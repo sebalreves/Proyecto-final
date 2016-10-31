@@ -24,7 +24,17 @@ class Data:
 
     def load_animaciones(self):
         for carpeta in os.listdir(frame_dir):
-            self.animaciones[carpeta] = Animacion(archivo.format(frame_dir,carpeta))
+            self.animaciones[carpeta] = dict()
+            self.animaciones[carpeta]['1'] = Animacion(archivo.format(frame_dir,carpeta))
+            
+        for carpeta in self.animaciones:
+            self.animaciones[carpeta]['-1'] = Animacion(archivo.format(frame_dir,carpeta))
+            for cont, frame in enumerate(self.animaciones[carpeta]['-1'].frames):
+                self.animaciones[carpeta]['-1'].frames[cont] = pg.transform.flip(self.animaciones[carpeta]['-1'].frames[cont],True,False)
+                
+        
+        
+        
             
     def load_sprites(self):
         for imagen in os.listdir(sprites_dir):
@@ -81,19 +91,4 @@ class Data:
         txt.close
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
 

@@ -4,7 +4,7 @@ class Dialogo():
     #dialogo entre el jugador y otra persona
     def __init__(self,game):
         self.game = game
-        self.game.dialogo = 1
+        self.game.dialogo = 0
         #elementos para dibujar en pantalla
         self.x = 30
         self.y = 10
@@ -12,7 +12,7 @@ class Dialogo():
         self.iniciando_dialogo = False 
          
         #elecciones
-        self.lugar_eleciones = [(30,40),(400,40),(30,70),(400,70)]
+        self.lugar_eleciones = [(30,40),(600,40),(30,70),(400,70)]
         
         #marcador
         self.marcadores = [(700,110),(720,110),(740,110)]
@@ -20,6 +20,27 @@ class Dialogo():
         #texto
         self.acelerar = 1
         
+        
+    def iniciar_parametros(self):
+        self.iniciando_dialogo = True
+        self.game.dialogando = True
+        self.iniciativa = self.game.data.dialogos[self.game.dialogo]['iniciativa']
+        self.conversacion = self.game.data.dialogos[self.game.dialogo]['frases']
+        self.elecciones = self.game.data.dialogos[self.game.dialogo]['opciones']
+        self.agregando = True
+        self.eligiendo = False
+        self.marcador = 0
+        self.last_update_marcador = 0  #contador de tiempo
+        self.last_update = 0           #contador de tiempo
+        self.dialogo = 0            # cambia cada vez que habla el otro personaje
+        self.contador_frases = 0    #cambia cada vez que un personaje habla mas de una vez seguida
+        self.contador_letras = 0    # cambia cada vez que se agrega una letra
+        self.frase_actual = self.conversacion[self.dialogo][self.contador_frases]
+        self.letras_actuales = str()
+    
+    
+    
+    
     def agregar_letras(self):
         now = pg.time.get_ticks()
         if now - self.last_update > RAPIDEZ_DIALOGO/self.acelerar:
@@ -32,27 +53,13 @@ class Dialogo():
                 if self.frase_actual[self.contador_letras-1] != '-':
                     self.letras_actuales = self.frase_actual[:-len(self.frase_actual) + self.contador_letras]
                     
+    
                     
     def update(self):  #pasar el id en el update, id cero correspondera a no escribir nada
         
         if self.game.dialogo: 
             if not self.iniciando_dialogo:
-                #init de cada dialogo, por asi decirlo
-                self.iniciando_dialogo = True
-                self.game.dialogando = True
-                self.iniciativa = self.game.data.dialogos[self.game.dialogo]['iniciativa']
-                self.conversacion = self.game.data.dialogos[self.game.dialogo]['frases']
-                self.elecciones = self.game.data.dialogos[self.game.dialogo]['opciones']
-                self.agregando = True
-                self.eligiendo = False
-                self.marcador = 0
-                self.last_update_marcador = 0  #contador de tiempo
-                self.last_update = 0           #contador de tiempo
-                self.dialogo = 0            # cambia cada vez que habla el otro personaje
-                self.contador_frases = 0    #cambia cada vez que un personaje habla mas de una vez seguida
-                self.contador_letras = 0    # cambia cada vez que se agrega una letra
-                self.frase_actual = self.conversacion[self.dialogo][self.contador_frases]
-                self.letras_actuales = str()
+                self.iniciar_parametros()
 
                 
             if not self.eligiendo:
@@ -119,6 +126,7 @@ class Dialogo():
             else:
                 #terminar la conversacion
                 self.game.dialogo = 0
+                
             #self.game.dialogando = False
 
         self.agregando = True
@@ -147,4 +155,11 @@ class Dialogo():
                         
                       
                 pg.draw.line(self.game.pantalla,NEGRO,inicio,final)
+                
+                
+                
+                
+                
+                
+                
                 

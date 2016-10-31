@@ -14,6 +14,7 @@ class Juego:
         
     def nuevo_mundo(self):
         if self.mundo == 1:
+            self.init_map = True
             self.jugador = Jugador(self)
             self.map = self.data.mapas['mapa1']
             self.map.render()
@@ -40,8 +41,13 @@ class Juego:
             
             
     def update_game(self):
+        #aqui se spawnean los parlanchines
         if self.mundo == 1:
-            pass
+            if self.map.name == 'mapa1':
+                if self.init_map:
+                    self.amigo1 = Parlanchin(self, 3,5, 1, 'personaje', 1)
+                    self.all_sprites.add(self.amigo1)
+                    self.init_map = False
                 
         elif self.mundo == 2:
             pass
