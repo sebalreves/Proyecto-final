@@ -1,3 +1,4 @@
+
 import sys
 from dialogos import *
 from sprites import*
@@ -10,8 +11,11 @@ from juego import *
 class Programa(Juego):
     def __init__(self):
         pg.init()
-        Juego.__init__(self)
+        
         self.data = Data(self)
+        Juego.__init__(self)
+        self.transito = Transito(self
+                                 )
         self.funciones = Funciones(self)
         self.mouse = Mouse(self)
         self.dialogos = Dialogo(self)
@@ -33,6 +37,7 @@ class Programa(Juego):
         self.keys = pg.key.get_pressed()
         
         for event in pg.event.get():
+            
             
             if event.type == pg.QUIT:
                 pg.quit()
@@ -59,9 +64,15 @@ class Programa(Juego):
                         self.camara.seguir_jugador = not self.camara.seguir_jugador
                     
                     if event.key == pg.K_SPACE:
+                        delta = 1200- self.jugador.draw_pos.x
+                        print self.jugador.pos.x + delta + 100, self.jugador.pos.x - (1200-delta-100)
+                         
+                        
                         #print 'jugador ' + str(self.jugador.pos)
                         #print'camara' + str(self.camara.rect[0:2])
-                        pass
+                        #print self.amigo1.rect
+
+                        
                         
                     
     def update(self):
@@ -77,7 +88,8 @@ class Programa(Juego):
             
     def draw(self):  
         
-        self.pantalla.fill((255,255,254))
+        self.pantalla.fill((240,238,230))
+        #pg.draw.circle(self.pantalla, (0,0,0), self.jugador.rect.center, 12)
         #self.funciones.escribir(self.map.name, (500,50))
         for sprite in self.all_sprites:
             # mover rectangulo auxiliar para hacer colisiones

@@ -8,7 +8,7 @@ class Funciones:
         self.transicion = False
         self.oscurecer = False
         self.tiritar = False
-        self.cuadriculado = False
+        self.cuadriculado = True
         self.animando = False
         self.camara_en_movimiento = False  #movimiento independiente del jugador
         self.pausa = False 
@@ -22,9 +22,7 @@ class Funciones:
         #transicion
         self.velocidad = 0
         self.alpha = 0
-        self.alpha_2 = 0
         self.superficie = pg.Surface((ANCHO,ALTO))
-        self.superficie_2 = pg.Surface((ANCHO,ALTO))
         
         
         
@@ -34,23 +32,11 @@ class Funciones:
             if self.transicion:
                 self.transicion_pantalla(self.velocidad)
                 
-            if self.game.map.oscurecer:
-                self.alpha_2+= 4
-                if self.alpha_2 >= 50:
-                    self.alpha_2 = 50
-                    
-            else:
-                self.alpha_2 -=4
-                if self.alpha_2 <=0:
-                    self.alpha_2 = 0
 
             if self.alpha != 0:
                 self.superficie.set_alpha(self.alpha)
                 self.game.pantalla.blit(self.superficie,(0,0))
 
-            if self.alpha_2!= 0:
-                self.superficie_2.set_alpha(self.alpha_2)
-                self.game.pantalla.blit(self.superficie_2,(0,0))
                 
 
             

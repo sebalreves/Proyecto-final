@@ -14,7 +14,6 @@ class Data:
         self.load_save()
         self.load_dialogos()
         self.load_sprites()
-        self.load_mapas()
         self.load_animaciones()
         self.load_music()
         
@@ -78,7 +77,11 @@ class Data:
         txt.close()
         for linea in lineas:
             llave, valor = linea.strip().split('::')
-            self.save[llave.strip()] = valor.strip()
+            if valor == 'False':
+                valor = False
+            elif valor == 'True':
+                valor = True
+            self.save[llave.strip()] = valor
             
             
     

@@ -1,5 +1,6 @@
 import os
 import pygame as pg
+import random
 
 dir = os.getcwd()
 arch_dir = dir + '/' + 'archivos'
@@ -11,14 +12,14 @@ dialogo_dir = arch_dir +'/' + 'dialogos'
 archivo = '{}/{}'   #carpeta/archivo
 
 
-ANCHO = 1200   #16 x 12
-ALTO = 720
+ANCHO = 1200   #48 * 25
+ALTO = 720   #15* 48
 
 
 FPS = 60
 ANI_FPS = 45 # corresponde a 24fps
 
-CUADRADO = 50
+CUADRADO = 48
 ANCHO_T = ANCHO/CUADRADO
 ALTO_T = ALTO/CUADRADO
 
@@ -36,10 +37,11 @@ GRIS_8 =(240,240,240)
 GRISES_CLAROS = [GRIS_5,GRIS_6,GRIS_7,GRIS_8]
 GRISES_OSCUROS= [GRIS_1,GRIS_2,GRIS_3,GRIS_4]
 
+#player
 PLAYER_ACC = 0.16
 PLAYER_FRICTION = -0.085
 PLAYER_MAX_SPEED = 2.285
-PLAYER_RADIO = 100
+PLAYER_RADIO = 60
 
 #LAYER
 PLAYER_LAYER = 2

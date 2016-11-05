@@ -47,7 +47,6 @@ class Mapa:
         self.alpha = 40
         self.cambiar_mapa = False
         self.borde = False
-        self.oscurecer = False
         self.name = carpeta.strip().split('/')[-1]
         
         #carga las caracteristicas del mapa
@@ -69,8 +68,9 @@ class Mapa:
             contador +=1
             
         #dimensiones de la capa donde esta el jugador, necesarias para la camara
-        self.ancho = self.layers[self.player_layer].ancho + 2000
+        self.ancho = self.layers[self.player_layer].ancho 
         self.alto = self.layers[self.player_layer].alto  
+
       
     def render(self):
         #cambia al jugador de layer, dependiendo del mapa que se cargue
@@ -87,19 +87,16 @@ class Mapa:
             
     def update(self):
         self.borde = False
-        self.oscurecer = False
         # saliendo del mapa
-        if self.game.jugador.rect.centerx > self.ancho - 150 :
-            if self.game.mouse.pos.x > self.ancho-200 :
-                if len(self.derecha[0]) > 0 :
-                    self.borde = True
-                    self.mostrar_opciones()
+        if self.game.jugador.draw_pos.x > 950 and self.game.mouse.pos.x >950 :
+            if len(self.derecha[0]) > 0 :
+                self.borde = True
+                self.mostrar_opciones()
                     
-        if self.game.jugador.rect.centerx < 150:
-            if self.game.mouse.pos.x < 100:
-                if len(self.izquierda[0])>0:
-                    self.borde = True
-                    self.mostrar_opciones()
+        if self.game.jugador.draw_pos.x < 150 and self.game.mouse.pos.x < 150:
+            if len(self.izquierda[0])>0:
+                self.borde = True
+                self.mostrar_opciones()
                 
         if self.cambiar_mapa:
             self.game.funciones.transicion_pantalla(3)
@@ -116,14 +113,13 @@ class Mapa:
             for cont, eleccion in enumerate(self.derecha):
                 rect = self.game.funciones.escribir_derecha(eleccion, (50*cont +15))
                 if rect.collidepoint(self.game.mouse.pos):
-                    self.oscurecer= True
-                    
                     if not self.sobre_boton: 
                         self.sobre_boton = True
                         inicio, final = ((rect.bottomleft[0],rect.bottomleft[1]-6), 
                                         (rect.bottomright[0],rect.bottomright[1]-6))
-                        if self.game.mouse.boton_up[2]:
+                        if self.game.mouse.boton_up[0]:
                             self.cambiar_mapa = True
+                            self.lugar = 1
                             self.eleccion = eleccion
                             
                     pg.draw.line(self.game.pantalla,NEGRO,inicio,final)
@@ -132,25 +128,37 @@ class Mapa:
             for cont, eleccion in enumerate(self.izquierda):
                 rect = self.game.funciones.escribir(eleccion, (20,50*cont +15))
                 if rect.collidepoint(self.game.mouse.pos):
-                    self.oscurecer = True
-                    
                     if not self.sobre_boton: 
                         self.sobre_boton = True
                         inicio, final = ((rect.bottomleft[0],rect.bottomleft[1]-6), 
                                         (rect.bottomright[0],rect.bottomright[1]-6))
-                        if self.game.mouse.boton_up[2]:
+                        if self.game.mouse.boton_up[0]:
                             self.cambiar_mapa = True
+                            self.lugar = -1
                             self.eleccion = eleccion
                             
                     pg.draw.line(self.game.pantalla,NEGRO,inicio,final)
                     
             
+    def spawn_jugador(self):
+        if self.lugar == 1:
+            self.game.jugador.pos.x = 0
+        elif self.lugar == -1:
+            self.game.jugador.pos.x = self.game.map.ancho
+            
+        self.game.jugador.name = 'caminar'
+        self.game.jugador.vel.x = 1.88 * self.lugar
+    
     def salir_del_mapa(self):
         #elimina sprites actuales y carga loos del nuevo mapa
-        self.game.jugador.aparecer(self.eleccion)
+        #self.game.jugador.aparecer(self.eleccion)
+        
         self.game.dialogo = 0
         self.game.map = self.game.data.mapas[self.eleccion]
         self.game.map.render()
+        self.game.camara.ancho = self.game.map.ancho
+        self.spawn_jugador()
+        self.game.init_map = True
             
 class Layer:
     def __init__(self,game,filename, layer):
@@ -163,8 +171,8 @@ class Layer:
         for linea in txt:
             self.data.append(linea.strip())
         txt.close()
-        self.ancho = len(self.data[0]) * CUADRADO
-        self.alto = len(self.data) *CUADRADO
+        self.ancho = (len(self.data[0])-1) * CUADRADO
+        self.alto = (len(self.data)-1) *CUADRADO
         
         #carga los sprites de la capa(lee la matriz)
         cont_y = 0
@@ -204,24 +212,22 @@ class Camara():
 
     
     def update (self, objeto):
-        if self.moviendose:
-            self.mover_camara()
         self.layer = objeto._layer
         if self.seguir_jugador:
             #se deja al jugador al centro y se mueve el escenario en la direccion contraria al mismo
-            
             x = -objeto.rect.centerx + int(ANCHO/2)
-            y = -objeto.rect.centery + int(ALTO/2)
+            #y = -objeto.rect.centery + int(ALTO/2)
+            y = 0
             
             # deja avanzar al objeto pero la camara se detiene en los bordes del mapa
             x = min(0, x)  #izquierda
-            y = min (0,y)  # arriba
+            #y = min (0,y)  # arriba
             x = max(-(self.ancho - ANCHO), x)  # derecha
-            y = max(-(self.alto - ALTO), y)  # abajo
-            
+            #y = max(-(self.alto - ALTO), y)  # abajo
             self.rect = pg.Rect(x,y,self.ancho,self.alto)
         else:
-            pass
+            if self.moviendose:
+                self.mover_camara()
             #------------------------------------------- x,y = self.rect.topleft
             #--------------- se deja estatico el escenario y se mueve el jugador
             #------------------------------------- if self.game.keys[pg.K_LEFT]:

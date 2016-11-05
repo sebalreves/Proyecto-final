@@ -8,7 +8,7 @@ class Juego:
         self.pantalla = pg.display.set_mode((ANCHO, ALTO))
         self.pantalla_rect = pg.Rect(0,0,ANCHO,ALTO)
         self.all_sprites = pg.sprite.LayeredUpdates()
-        
+        self.data.load_mapas()
         self.clock = pg.time.Clock()
         self.mundo = 1
         
@@ -18,6 +18,7 @@ class Juego:
             self.jugador = Jugador(self)
             self.map = self.data.mapas['mapa1']
             self.map.render()
+            #print self.map.ancho, self.map.alto
             self.camara = Camara(self, self.map.ancho,self.map.alto)
             
 
@@ -45,9 +46,16 @@ class Juego:
         if self.mundo == 1:
             if self.map.name == 'mapa1':
                 if self.init_map:
-                    self.amigo1 = Parlanchin(self, 3,5, 1, 'personaje', 1)
+                    self.transito.agregar_to_allsprites()
+                    self.amigo1 = Parlanchin(self, 3, 10, 1, 'personaje', 1)
                     self.all_sprites.add(self.amigo1)
                     self.init_map = False
+                    
+            elif self.map.name == 'mapa2':
+                if self.init_map:
+                    self.transito.agregar_to_allsprites()
+                    self.init_map = False
+                    
                 
         elif self.mundo == 2:
             pass
@@ -66,7 +74,4 @@ class Juego:
             
         elif self.mundo == 7:
             pass
-    def leer_data(self):
-        print'f'
-    def guardar_data(self):
-        pass
+
