@@ -33,7 +33,9 @@ class Programa(Juego):
                  
     def events(self):
         pg.display.set_caption(str(round(self.clock.get_fps())))
-        self.mouse.boton_up = [False,False,False]
+        self.mouse.boton_up = [False,
+                               
+                               False,False]
         self.keys = pg.key.get_pressed()
         
         for event in pg.event.get():
@@ -44,7 +46,7 @@ class Programa(Juego):
                 sys.exit()
             
             if event.type == pg.MOUSEBUTTONUP:
-                if event.button == 1:
+                if event.button == 1: 
                     self.mouse.boton_up[0] = True
                 if event.button == 3:
                     self.mouse.boton_up[2] = True
@@ -64,13 +66,10 @@ class Programa(Juego):
                         self.camara.seguir_jugador = not self.camara.seguir_jugador
                     
                     if event.key == pg.K_SPACE:
-                        delta = 1200- self.jugador.draw_pos.x
-                        print self.jugador.pos.x + delta + 100, self.jugador.pos.x - (1200-delta-100)
-                         
+                        pg.image.save(self.pantalla, 'cuadriculado.png')
+                        print self.jugador._layer, self.map.player_layer
+                        print self.all_sprites.get_layer_of_sprite(self.jugador)
                         
-                        #print 'jugador ' + str(self.jugador.pos)
-                        #print'camara' + str(self.camara.rect[0:2])
-                        #print self.amigo1.rect
 
                         
                         

@@ -78,8 +78,9 @@ class Mapa:
         self.game.all_sprites.empty()
         for cont,layer in enumerate(self.layers.values()):
             self.game.all_sprites.add(layer.sprites)
-            if cont == int(self.info['jugador']):
-                self.game.all_sprites.add(self.game.jugador)
+            self.game.all_sprites.add(self.game.jugador)
+            
+        self.game.all_sprites.change_layer(self.game.jugador, self.player_layer)
                 
             
     #falta crear funcion para cada mapa, la manera en que spawnea el jugador
@@ -169,10 +170,12 @@ class Layer:
         self.data = list()
         txt = open(filename)
         for linea in txt:
-            self.data.append(linea.strip())
+            self.data.append(linea.strip().split('|')[1:-1])
         txt.close()
-        self.ancho = (len(self.data[0])-1) * CUADRADO
-        self.alto = (len(self.data)-1) *CUADRADO
+        
+        self.ancho = (len(self.data[0])) * CUADRADO
+        self.alto = (len(self.data)) *CUADRADO
+        
         
         #carga los sprites de la capa(lee la matriz)
         cont_y = 0
@@ -182,8 +185,8 @@ class Layer:
             for lugar in fila:
                 cont_x+=1
                 #carga el sprite dependiendo de la id que se lee
-                if lugar == '1':
-                    self.sprites.append(Wall(self.game,cont_x,cont_y,layer))
+                if lugar != '':
+                    self.sprites.append(Wall(self.game,lugar,cont_x-1,cont_y-1,layer))
                     
 
     

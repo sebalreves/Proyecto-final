@@ -17,8 +17,8 @@ class Juego:
             self.init_map = True
             self.jugador = Jugador(self)
             self.map = self.data.mapas['mapa1']
-            self.map.render()
-            #print self.map.ancho, self.map.alto
+            #self.map.render()
+            
             self.camara = Camara(self, self.map.ancho,self.map.alto)
             
 
@@ -42,22 +42,22 @@ class Juego:
             
             
     def update_game(self):
-        #aqui se spawnean los parlanchines
         if self.mundo == 1:
             if self.map.name == 'mapa1':
                 if self.init_map:
-                    self.transito.agregar_to_allsprites()
-                    self.amigo1 = Parlanchin(self, 3, 10, 1, 'personaje', 1)
-                    self.all_sprites.add(self.amigo1)
+                    #self.transito.agregar_to_allsprites(1)
+                    #self.amigo1 = Parlanchin(self, 3, 10, 1, 'personaje', 1)
+                    #self.all_sprites.add(self.amigo1)
                     self.init_map = False
                     
             elif self.map.name == 'mapa2':
                 if self.init_map:
-                    self.transito.agregar_to_allsprites()
+                    self.transito.agregar_to_allsprites(1)
                     self.init_map = False
                     
                 
         elif self.mundo == 2:
+            #4000, 1100
             pass
             
         elif self.mundo == 3:

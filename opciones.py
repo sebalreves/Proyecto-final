@@ -12,14 +12,14 @@ dialogo_dir = arch_dir +'/' + 'dialogos'
 archivo = '{}/{}'   #carpeta/archivo
 
 
-ANCHO = 1200   #48 * 25
-ALTO = 720   #15* 48
+ANCHO = 800   #32 * 25
+ALTO = 480   #32 * 15
 
 
 FPS = 60
 ANI_FPS = 45 # corresponde a 24fps
 
-CUADRADO = 48
+CUADRADO = 32
 ANCHO_T = ANCHO/CUADRADO
 ALTO_T = ALTO/CUADRADO
 
@@ -40,8 +40,8 @@ GRISES_OSCUROS= [GRIS_1,GRIS_2,GRIS_3,GRIS_4]
 #player
 PLAYER_ACC = 0.16
 PLAYER_FRICTION = -0.085
-PLAYER_MAX_SPEED = 2.285
 PLAYER_RADIO = 60
+PLAYER_SPEED = 300
 
 #LAYER
 PLAYER_LAYER = 2
@@ -62,6 +62,22 @@ fuente_media = pg.font.Font(fuente_dir, 25)
 fuente_grande = pg.font.Font(fuente_dir, 30)
 RAPIDEZ_DIALOGO = 70
 RAPIDEZ_MARCADORES = 500
+
+'''|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||'''
 
 
 

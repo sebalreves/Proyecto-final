@@ -32,6 +32,7 @@ class Animado():
 
     def animar(self):
         #Hace el cambio de fotograma cada cierto tiempo
+            
         now = pg.time.get_ticks()
         if now - self.last_update > ANI_FPS  :
             self.last_update = now
@@ -58,9 +59,9 @@ class Persona():
         self.draw_rect = self.image.get_rect()   # rect que se dibuja con un offset de la camara
         #la idea es que el draw_rect depende de el rect real, pero no viceversa
         
-        self.rect.center = (ANCHO/2, 600)
-        self.pos = Vec(ANCHO/2, 600)
-        self.draw_pos = Vec(ANCHO/2, 600)
+        self.rect.center = (ANCHO/2, 450)
+        self.pos = Vec(ANCHO/2, 450)
+        self.draw_pos = Vec(ANCHO/2, 450)
         self.acc = Vec(0,0)
         self.vel = Vec(0,0)
         
@@ -77,8 +78,18 @@ class Persona():
         self.draw_pos.x = self.draw_rect.center[0]
         self.draw_pos.y = self.draw_rect.center[1]
     def movimiento_lineal(self):
-        # time dependiente
-        pass
+        self.vel.x = 0
+        if self.acc.x > 0:
+            self.vel.x = PLAYER_SPEED
+        elif self.acc.x < 0:
+            self.vel.x = PLAYER_SPEED*-1
+        
+        self.pos.x += self.vel.x* self.game.dt
+        self.rect.center = self.pos
+        
+        self.draw_pos.x = self.draw_rect.center[0]
+        self.draw_pos.y = self.draw_rect.center[1]
+        
     
     def draw_mask(self,color=(102,178,255)):
         if self.game.data.save['animaciones']:
@@ -141,7 +152,6 @@ class Persona():
             if self.name== 'girar':
                 self.vel.x = 0
                 
-                
         # situaciones especiales
         if self.name == 'cam-detenerse' and abs(self.acc.x)>0:
             if self.acc.x * int(self.direccion) < 0:
@@ -160,8 +170,11 @@ class Persona():
             self.next = 'pie'
             self.acc.x = PLAYER_ACC* int(self.direccion)*-0.65
     
-    
-    
+    def elegir_penca(self):
+        if abs(self.vel.x) >0:
+            self.name = 'caminar penca'
+        else:
+            self.name = 'pie penca'
 
 class Jugador(pg.sprite.Sprite, Animado, Persona):
     def __init__(self,game):
@@ -169,20 +182,22 @@ class Jugador(pg.sprite.Sprite, Animado, Persona):
         Animado.__init__(self, game)
         Persona.__init__(self,game)
         pg.sprite.Sprite.__init__(self)
-        
-        
+           
     def update(self):
         self.acc.x , self.acc.y = 0,0
         self.acc.x = self.seguir()
         
-        self.elegir_animaciones()
-        self.animar()
-        self.draw_mask()
+        if self.game.data.save['animaciones']:
+            self.elegir_animaciones()
+            self.animar()
+            self.draw_mask()
+            self.movimiento_acelerado()
+        else:
+            self.elegir_penca()
+            self.animar()
+            self.movimiento_lineal()
+            
         
-        self.movimiento_acelerado()
-        
-        
-
     def seguir(self):
         #sigue al mouse cuando se oprime boton izquierdo
         if self.game.mouse.botones[2]:
@@ -194,10 +209,7 @@ class Jugador(pg.sprite.Sprite, Animado, Persona):
                 else:
                     return -1 * PLAYER_ACC
         return 0
-    
-
-    
-    
+        
     def aparecer(self,mapa_nuevo):
         #arreglar esto
         mapa_anterior = self.game.map.name
@@ -272,29 +284,15 @@ class Transito():
 
             
     def update(self):
-        for persona in self.grupo:
-            if not persona.rect.colliderect(self.game.pantalla_rect):
-                #reespawnear la persona
-                if random.random()> 0.5:
-                    persona.rect.x =random.randrange(1300,1600)
-                    persona.sentido = -1
-                else:
-                    persona.rect.x = random.randrange(-400,-100)
-                    persona.sentido = 1
+        pass
                     
-    def actualizar_grupo(self,numero):
-        if len(self.grupo) >= numero:
-            self.grupo = self.grupo[:numero]
-            
-        else:
-            for aux in range(numero-len(self.grupo)):
-                t = Transeunte(self.game)
-                self.grupo.append(t)
                 
-    def agregar_to_allsprites(self):
+    def agregar_to_allsprites(self,layer):
         self.game.all_sprites.add(self.grupo)
+        for sprite in self.grupo:
+            self.game.all_sprites.change_layer(sprite, layer)
         
-    def eliminar__from_allprites(self):
+    def eliminar_from_allprites(self):
         for sprite in self.grupo:
             sprite.kill()
                
@@ -344,7 +342,7 @@ class Transeunte(pg.sprite.Sprite,Animado,Persona):
         
         
 class Wall(pg.sprite.Sprite):
-    def __init__(self, game, x, y,layer):
+    def __init__(self, game,name, x, y,layer):
         self._layer = layer
         pg.sprite.Sprite.__init__(self)
         
@@ -353,12 +351,16 @@ class Wall(pg.sprite.Sprite):
         self.layer = layer
         
         #define color
-        if self.layer == 1:
-            self.image.fill((100,30,30))
-        elif self.layer == 2:
-            self.image.fill((150,0,0))
-        else:
-            self.image.fill((200,0,0))
+        if False:
+            if self.layer == 1:
+                self.image.fill((100,30,30))
+            elif self.layer == 2:
+                self.image.fill((150,0,0))
+            else:
+                self.image.fill((200,0,0))
+
+        self.image = self.game.data.sprites[name]
+        
         self.rect = self.image.get_rect()
         self.draw_rect = self.image.get_rect()
         self.x = x

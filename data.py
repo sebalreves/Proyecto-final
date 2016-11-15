@@ -37,7 +37,7 @@ class Data:
             
     def load_sprites(self):
         for imagen in os.listdir(sprites_dir):
-            aux = imagen.split('.')[0]
+            aux = '.'.join(imagen.split('.')[:-1])
             temp = pg.image.load(archivo.format(sprites_dir,imagen))
             self.sprites[aux] = temp
 
