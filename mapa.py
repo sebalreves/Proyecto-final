@@ -47,6 +47,7 @@ class Mapa:
         self.alpha = 40
         self.cambiar_mapa = False
         self.borde = False
+        self.opciones = False
         self.name = carpeta.strip().split('/')[-1]
         
         #carga las caracteristicas del mapa
@@ -60,6 +61,10 @@ class Mapa:
         self.player_layer = int(self.info['jugador'])
         self.izquierda = self.info['izquierda'].split(',')
         self.derecha = self.info['derecha'].split(',')
+        self.velocidad = 1
+        if 'vel' in self.info.keys():
+            self.velocidad = int (self.info['vel'])
+            print self.velocidad
         
         #Crea una capa de profundidad por cada txt que conforme el mapa
         contador = 1
@@ -68,6 +73,7 @@ class Mapa:
             contador +=1
             
         #dimensiones de la capa donde esta el jugador, necesarias para la camara
+        
         self.ancho = self.layers[self.player_layer].ancho 
         self.alto = self.layers[self.player_layer].alto  
 
@@ -77,8 +83,8 @@ class Mapa:
         # dibuja los sprites en la pantalla, limpiando los grupos y agregando los nuevos sprites
         self.game.all_sprites.empty()
         for cont,layer in enumerate(self.layers.values()):
-            self.game.all_sprites.add(layer.sprites)
             self.game.all_sprites.add(self.game.jugador)
+            self.game.all_sprites.add(layer.sprites)
             
         self.game.all_sprites.change_layer(self.game.jugador, self.player_layer)
                 
@@ -88,17 +94,31 @@ class Mapa:
             
     def update(self):
         self.borde = False
+        self.opciones = False
         # saliendo del mapa
-        if self.game.jugador.draw_pos.x > 950 and self.game.mouse.pos.x >950 :
+        if self.game.jugador.draw_pos.x > 600 and self.game.mouse.pos.x >600 :
             if len(self.derecha[0]) > 0 :
-                self.borde = True
-                self.mostrar_opciones()
+                
+                if 'central' in self.derecha[0] and self.derecha[0] != 'central1':
+                    if self.game.mouse.botones[2]:
+                        self.cambiar_mapa = True
+                        self.lugar = 1
+                        self.eleccion = self.derecha[0]
+                else:
+                    self.opciones = True
                     
         if self.game.jugador.draw_pos.x < 150 and self.game.mouse.pos.x < 150:
             if len(self.izquierda[0])>0:
-                self.borde = True
-                self.mostrar_opciones()
+                if 'central' in self.izquierda[0]:
+                    if self.game.mouse.botones[2]:
+                        self.cambiar_mapa = True
+                        self.lugar = -1
+                        self.eleccion = self.izquierda[0]
+                else:
+                    self.opciones = True
                 
+        if self.game.jugador.draw_pos.x > 750 or self.game.jugador.draw_pos.x < 50: 
+            self.game.jugador.vel *= 0.1
         if self.cambiar_mapa:
             self.game.funciones.transicion_pantalla(3)
             self.cambiar_mapa = False
@@ -109,7 +129,9 @@ class Mapa:
             
             
     def mostrar_opciones(self):
+        
         self.sobre_boton = False
+        
         if self.game.mouse.pos.x > 600:
             for cont, eleccion in enumerate(self.derecha):
                 rect = self.game.funciones.escribir_derecha(eleccion, (50*cont +15))
@@ -172,7 +194,6 @@ class Layer:
         for linea in txt:
             self.data.append(linea.strip().split('|')[1:-1])
         txt.close()
-        
         self.ancho = (len(self.data[0])) * CUADRADO
         self.alto = (len(self.data)) *CUADRADO
         
@@ -208,7 +229,7 @@ class Camara():
         x,y = self.rect.topleft
         
         # division necesaria para que el jugador quede estatico y el resto se mueva en "perspectiva"
-        x = x * objeto._layer/self.layer
+        x = x * objeto._layer/self.layer 
         y = y * objeto._layer/self.layer
         
         return objeto.rect.move(x,y)

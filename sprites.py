@@ -38,6 +38,7 @@ class Animado():
             self.last_update = now
             self.current_frame = (self.current_frame + 1)% len(self.game.data.animaciones[self.name]['1'].frames)
             self.image = self.game.data.animaciones[self.name][self.direccion].frames[self.current_frame]
+            self.redimensionar(self.game.escalado)
             self.rect = self.image.get_rect()
             
             self.mask = pg.mask.from_surface(self.image, 127)
@@ -59,20 +60,23 @@ class Persona():
         self.draw_rect = self.image.get_rect()   # rect que se dibuja con un offset de la camara
         #la idea es que el draw_rect depende de el rect real, pero no viceversa
         
-        self.rect.center = (ANCHO/2, 450)
-        self.pos = Vec(ANCHO/2, 450)
-        self.draw_pos = Vec(ANCHO/2, 450)
+        self.rect.center = (ANCHO/2, 310)
+        self.pos = Vec(ANCHO/2, 310)
+        self.draw_pos = Vec(ANCHO/2, 310)
         self.acc = Vec(0,0)
         self.vel = Vec(0,0)
         
     def movimiento_acelerado(self):
-        self.acc += self.vel * PLAYER_FRICTION
+        self.acc += self.vel * (PLAYER_FRICTION/self.game.map.velocidad)
         self.vel += self.acc
-        if abs(self.vel.x) < 0.1 :
-            self.vel.x = 0
-
-        self.pos += self.vel + (self.acc**2)/2
+        
+        self.pos += self.vel + (self.acc/2)
         self.rect.center = self.pos
+        
+        if abs(self.vel.x)< 0.1:
+            self.vel.x = 0
+        if abs(self.acc.x) < 0.1:
+            self.acc.x = 0
         
         # update draw_rect,
         self.draw_pos.x = self.draw_rect.center[0]
@@ -127,7 +131,7 @@ class Persona():
                         self.next = 'girar'
             
             
-            if abs(self.vel.x) > 0 and self.acc.x == 0:
+            if abs(self.vel.x) > 0.3 and self.acc.x == 0:
                 self.next = 'cam-detenerse'
                 
                 
@@ -175,13 +179,26 @@ class Persona():
             self.name = 'caminar penca'
         else:
             self.name = 'pie penca'
-
+            
+    def redimensionar(self,valor):
+        ancho,alto = self.image.get_size()
+        self.image = pg.transform.scale(self.image, (int(ancho*valor),int(alto*valor)))
+        self.rect = self.image.get_rect()
+        
+    def reloco(self,valor):
+        ancho = int(self.rect.width * valor)
+        alto = int(self.rect.height * valor)
+        self.image = pg.transform.scale(self.image, (ancho,alto))
+        self.rect = self.image.get_rect()
+        
+        
 class Jugador(pg.sprite.Sprite, Animado, Persona):
     def __init__(self,game):
         self._layer = PLAYER_LAYER
         Animado.__init__(self, game)
         Persona.__init__(self,game)
         pg.sprite.Sprite.__init__(self)
+        self.loco = False
            
     def update(self):
         self.acc.x , self.acc.y = 0,0
@@ -190,20 +207,27 @@ class Jugador(pg.sprite.Sprite, Animado, Persona):
         if self.game.data.save['animaciones']:
             self.elegir_animaciones()
             self.animar()
+            if self.loco:
+                self.reloco(1.07)
             self.draw_mask()
             self.movimiento_acelerado()
+            
         else:
             self.elegir_penca()
             self.animar()
             self.movimiento_lineal()
+        #print self.acc.x, self.vel.x
             
         
     def seguir(self):
         #sigue al mouse cuando se oprime boton izquierdo
         if self.game.mouse.botones[2]:
             distancia = (self.game.mouse.pos.x - self.draw_pos.x)
-
             if abs(distancia) > PLAYER_RADIO:
+                if abs(distancia) < 100:
+                    self.vel.x = int (self.direccion)* 0.3
+                    return 0
+                
                 if distancia > 0:
                     return PLAYER_ACC
                 else:
@@ -348,6 +372,7 @@ class Wall(pg.sprite.Sprite):
         
         self.game = game
         self.image = pg.Surface((30,30))
+        
         self.layer = layer
         
         #define color

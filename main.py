@@ -66,9 +66,10 @@ class Programa(Juego):
                         self.camara.seguir_jugador = not self.camara.seguir_jugador
                     
                     if event.key == pg.K_SPACE:
-                        pg.image.save(self.pantalla, 'cuadriculado.png')
-                        print self.jugador._layer, self.map.player_layer
-                        print self.all_sprites.get_layer_of_sprite(self.jugador)
+                        #pg.image.save(self.pantalla, 'cuadriculado.png')
+                        print self.map.ancho, self.jugador.pos
+                         
+                         
                         
 
                         
@@ -92,26 +93,29 @@ class Programa(Juego):
         #self.funciones.escribir(self.map.name, (500,50))
         for sprite in self.all_sprites:
             # mover rectangulo auxiliar para hacer colisiones
+           
+           
             sprite.draw_rect.topleft = self.camara.aplicar(sprite)[0:2]
             #el objeto se dibujara solo si esta dentro de la pantalla
-            #if sprite.draw_rect.colliderect(self.pantalla_rect):
-            self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
+            if type(sprite) != Jugador:
+                if sprite.draw_rect.colliderect(self.pantalla_rect):
+                    self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
+            else:
+                self.pantalla.blit(sprite.image, self.camara.aplicar(sprite))
             
             
             if type(sprite) == Parlanchin:
                 if sprite.nodo:   # si es que el sprite va a hablar}
-                    
                     if sprite.hit_box.collidepoint(self.jugador.rect.center):  #usar centro del jugador
                         self.pantalla.blit(self.data.sprites['dialogo'], sprite.rect.midtop)
                     
             
             
 
-                
-        if not self.map.borde:
+        
+        if not self.map.opciones:
             self.dialogos.update()
         else:
-            
             self.map.mostrar_opciones()
         self.funciones.filtros()
         self.mouse.draw()

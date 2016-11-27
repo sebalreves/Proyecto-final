@@ -8,7 +8,7 @@ class Funciones:
         self.transicion = False
         self.oscurecer = False
         self.tiritar = False
-        self.cuadriculado = True
+        self.cuadriculado = False
         self.animando = False
         self.camara_en_movimiento = False  #movimiento independiente del jugador
         self.pausa = False 
@@ -105,6 +105,7 @@ class Funciones:
     def dibujar_cuadriculado(self):
         for x1 in range(0,ANCHO,CUADRADO):
             pg.draw.line(self.game.pantalla,(0,0,0), (x1,0),(x1,ALTO))
+            self.escribir(str(1+(x1/CUADRADO)), (x1,0))
         for y1 in range(0,ALTO,CUADRADO):
             pg.draw.line(self.game.pantalla,(0,0,0), (0,y1), (ANCHO, y1))
         
